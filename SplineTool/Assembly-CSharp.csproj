@@ -52,10 +52,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\SplineTool\Bezier.cs" />
-     <Compile Include="Assets\SplineTool\BezierControlMode.cs" />
-     <Compile Include="Assets\SplineTool\BezierCurve.cs" />
      <Compile Include="Assets\SplineTool\BezierSpline.cs" />
-     <Compile Include="Assets\SplineTool\Line.cs" />
+     <Compile Include="Assets\SplineTool\ControlPoint.cs" />
+     <Compile Include="Assets\SplineTool\Spline.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

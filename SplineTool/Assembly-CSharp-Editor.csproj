@@ -51,9 +51,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\SplineTool\Editor\BezierCurveInspector.cs" />
-     <Compile Include="Assets\SplineTool\Editor\BezierSplineInspector.cs" />
-     <Compile Include="Assets\SplineTool\Editor\LineInspector.cs" />
+     <Compile Include="Assets\SplineTool\Editor\BezierSplineEditor.cs" />
+     <Compile Include="Assets\SplineTool\Editor\SplineEditor.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
