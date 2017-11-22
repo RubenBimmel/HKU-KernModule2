@@ -11,46 +11,60 @@ public enum BezierControlPointMode {
 
 [Serializable]
 public class ControlPoint {
-
-    public Vector3 anchor;
-
+    [SerializeField]
+    private Vector3 anchor;
     [SerializeField]
     private Vector3[] handles;
+    public BezierControlPointMode mode;
 
     //Simple constructor
     public ControlPoint() {
         anchor = Vector3.zero;
-        handles = new Vector3[] {};
+        handles = new Vector3[2] {
+            .5f * Vector3.back,
+            .5f * Vector3.forward
+        };
+        mode = BezierControlPointMode.Mirrored;
     }
 
     //Constructor with position
     public ControlPoint(Vector3 position) {
         anchor = position;
-        handles = new Vector3[] { };
+        handles = new Vector3[2] {
+            .5f * Vector3.back,
+            .5f * Vector3.forward
+        };
+        mode = BezierControlPointMode.Mirrored;
     }
 
-    //Move entire controlpoint
-    public void MoveControlPoint (Vector3 position) {
-        Vector3 translation = position - anchor;
+    //Get position
+    public Vector3 GetAnchorPosition () {
+        return anchor;
+    }
+    
+    //Get handle position
+    public Vector3 GetHandlePosition(int index) {
+        return anchor + handles[index];
+    }
+
+    //Set position
+    public void setAnchorPosition(Vector3 position) {
         anchor = position;
-        for (int i = 0; i < handles.Length; i++) {
-            handles[i] += translation;
+    }
+
+    //Set handleposition
+    public void setHandlePosition(int index, Vector3 position) {
+        handles[index] = position - anchor;
+        switch (mode) {
+            case BezierControlPointMode.Free:
+                break;
+            case BezierControlPointMode.Aligned:
+                Vector3 direction = anchor - position;
+                handles[1 - index] = direction.normalized * handles[1 - index].magnitude;
+                break;
+            case BezierControlPointMode.Mirrored:
+                handles[1 - index] = anchor - position;
+                break;
         }
-    }
-
-    //Move a single handle
-    public void MoveHandle (int index, Vector3 position) {
-        handles[index] = position;
-    }
-
-    //Add a handle
-    public void AddHandle () {
-        AddHandle(Vector3.forward);
-    }
-
-    //Add a handle at a relative position
-    public void AddHandle(Vector3 relativePosition) {
-        Array.Resize(ref handles, handles.Length + 1);
-        handles[handles.Length - 1] = anchor + relativePosition;
     }
 }

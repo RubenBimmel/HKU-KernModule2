@@ -6,10 +6,16 @@ using System;
 public class Spline : MonoBehaviour {
 
     [SerializeField]
-    private ControlPoint[] points;
+    private List<ControlPoint> points;
+
+    public int ControlPointCount {
+        get {
+            return points.Count;
+        }
+    }
     
     public void Reset() {
-        points = new ControlPoint[] {
+        points = new List<ControlPoint> {
             new ControlPoint(Vector3.forward)
         };
     }
@@ -18,8 +24,12 @@ public class Spline : MonoBehaviour {
         return points[index];
     }
 
-    public void SetControlPoint (int index, Vector3 position) {
-        points[index].MoveControlPoint(position);
+    public void AddControlPoint () {
+        points.Add(new ControlPoint(points[points.Count - 1].GetAnchorPosition() + Vector3.forward));
+    }
+
+    public void InsertControlPoint (int index) {
+        points.Insert(index, new ControlPoint(points[index].GetAnchorPosition() + Vector3.back));
     }
 
 }
