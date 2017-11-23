@@ -17,7 +17,7 @@ public class ControlPoint {
     [SerializeField]
     private Vector3[] handles;
     public BezierControlPointMode mode;
-    public List<ControlPoint> connectedPoints;
+    public int connectedIndex;
 
     //Simple constructor
     public ControlPoint() {
@@ -27,7 +27,7 @@ public class ControlPoint {
             .5f * Vector3.forward
         };
         mode = BezierControlPointMode.Mirrored;
-        connectedPoints = new List<ControlPoint> { this};
+        connectedIndex = -1;
     }
 
     //Constructor with position
@@ -38,7 +38,7 @@ public class ControlPoint {
             .5f * Vector3.forward
         };
         mode = BezierControlPointMode.Mirrored;
-        connectedPoints = new List<ControlPoint> { this };
+        connectedIndex = -1;
     }
     
     //Get position
@@ -53,9 +53,7 @@ public class ControlPoint {
 
     //Set position
     public void setAnchorPosition(Vector3 position) {
-        for (int i = 0; i < connectedPoints.Count; i++) {
-            connectedPoints[i].anchor = position;
-        }
+        anchor = position;
     }
 
     //Set handleposition
@@ -72,24 +70,5 @@ public class ControlPoint {
                 handles[1 - index] = anchor - position;
                 break;
         }
-    }
-
-    //Connect to other ControlPoint
-    public void Connect (ControlPoint other) {
-        other.connectedPoints.AddRange(connectedPoints);
-        other.connectedPoints = other.connectedPoints.Distinct().ToList();
-        for (int i = 0; i < other.connectedPoints.Count; i++) {
-            other.connectedPoints[i].connectedPoints = other.connectedPoints;
-        }
-    }
-
-    //Check index in connected anchors
-    public int GetIndex () {
-        for (int i = 0; i < connectedPoints.Count; i++) {
-            if (connectedPoints[i] == this) {
-                return i;
-            }
-        }
-        return 0;
     }
 }

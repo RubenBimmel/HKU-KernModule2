@@ -57,7 +57,8 @@ public class SplineComponentEditor : Editor {
                 ShowSelectedControlPoint(index, i, points[i]);
             }
         } else {
-            if (component.splines[spline].points[index].GetIndex() == 0)
+            int connectedIndex = component.splines[spline].points[index].connectedIndex;
+            if (connectedIndex < 0 || component.connectedPoints[connectedIndex] == component.splines[spline].points[index])
                 ShowControlPoint(spline, index, 0, points[0]);
         }
     }
@@ -89,7 +90,8 @@ public class SplineComponentEditor : Editor {
                 Undo.RecordObject(component, "Move Point");
                 EditorUtility.SetDirty(component);
                 if (handle == 0) {
-                    component.splines[activeSpline].points[index].setAnchorPosition(
+                    component.SetControlPoint(
+                        component.splines[activeSpline].points[index],
                         handleTransform.InverseTransformPoint(position));
                 }
                 else {
@@ -104,13 +106,24 @@ public class SplineComponentEditor : Editor {
         component = target as SplineComponent;
         if (activeSpline >= 0) {
             if (selectedIndex[0] >= 0 && selectedIndex[0] < component.splines[activeSpline].points.Count) {
-                if (component.splines[activeSpline].points[selectedIndex[0]].connectedPoints.Count > 1) {
+                int connectedIndex = component.splines[activeSpline].points[selectedIndex[0]].connectedIndex;
+                if (connectedIndex >= 0) {
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Previous")) {
-                        //component.splines[activeSpline].InsertControlPoint(selectedIndex[0]);
+                        ControlPoint newPoint = component.GetConnectedPoint(component.splines[activeSpline].points[selectedIndex[0]], -1);
+                        Debug.Log(newPoint == component.splines[activeSpline].points[selectedIndex[0]]);
+                        activeSpline = component.GetSpline(newPoint);
+                        selectedIndex[0] = component.splines[activeSpline].points.IndexOf(newPoint);
+                        selectedIndex[1] = 0;
+                        OnSceneGUI();
                     }
                     if (GUILayout.Button("Next")) {
-                        //component.splines[activeSpline].InsertControlPoint(selectedIndex[0]);
+                        ControlPoint newPoint = component.GetConnectedPoint(component.splines[activeSpline].points[selectedIndex[0]], 1);
+                        Debug.Log(newPoint == component.splines[activeSpline].points[selectedIndex[0]]);
+                        activeSpline = component.GetSpline(newPoint);
+                        selectedIndex[0] = component.splines[activeSpline].points.IndexOf(newPoint);
+                        selectedIndex[1] = 0;
+                        OnSceneGUI();
                     }
                     GUILayout.EndHorizontal();
                 }
