@@ -560,7 +560,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.30044985, y: 0.48506686, z: -0.1818493, w: -0.80099183}
     speed: 2
-    m_Value: {x: -0.30041724, y: 0.48501426, z: -0.18182957, w: -0.8009049}
+    m_Value: {x: -0.30044985, y: 0.48506686, z: -0.1818493, w: -0.80099183}
   m_Size:
     m_Target: 5.1376677
     speed: 2
@@ -604,23 +604,23 @@ MonoBehaviour:
     height: 250
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: aa270000
-    m_LastClickedID: 10154
+    m_SelectedIDs: d6d6ffff
+    m_LastClickedID: -10538
     m_ExpandedIDs: a6fbffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: Spline
-      m_OriginalName: Spline
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 10154
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 4
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 0
       m_ClientGUIView: {fileID: 10}
     m_SearchString: 

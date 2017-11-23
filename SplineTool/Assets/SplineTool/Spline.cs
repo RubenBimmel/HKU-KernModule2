@@ -3,25 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Spline : MonoBehaviour {
+[Serializable]
+public class Spline {
 
-    [SerializeField]
-    private List<ControlPoint> points;
-
-    public int ControlPointCount {
-        get {
-            return points.Count;
-        }
-    }
+    public List<ControlPoint> points;
     
-    public void Reset() {
+    public Spline() {
         points = new List<ControlPoint> {
             new ControlPoint(Vector3.forward)
         };
-    }
-
-    public ControlPoint GetControlPoint (int index) {
-        return points[index];
     }
 
     public void AddControlPoint () {
