@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public enum BezierControlPointMode {
     Free,
@@ -16,6 +17,7 @@ public class ControlPoint {
     [SerializeField]
     private Vector3[] handles;
     public BezierControlPointMode mode;
+    public List<ControlPoint> connectedPoints;
 
     //Simple constructor
     public ControlPoint() {
@@ -25,6 +27,7 @@ public class ControlPoint {
             .5f * Vector3.forward
         };
         mode = BezierControlPointMode.Mirrored;
+        connectedPoints = new List<ControlPoint> { this};
     }
 
     //Constructor with position
@@ -35,8 +38,9 @@ public class ControlPoint {
             .5f * Vector3.forward
         };
         mode = BezierControlPointMode.Mirrored;
+        connectedPoints = new List<ControlPoint> { this };
     }
-
+    
     //Get position
     public Vector3 GetAnchorPosition () {
         return anchor;
@@ -49,7 +53,9 @@ public class ControlPoint {
 
     //Set position
     public void setAnchorPosition(Vector3 position) {
-        anchor = position;
+        for (int i = 0; i < connectedPoints.Count; i++) {
+            connectedPoints[i].anchor = position;
+        }
     }
 
     //Set handleposition
@@ -66,5 +72,24 @@ public class ControlPoint {
                 handles[1 - index] = anchor - position;
                 break;
         }
+    }
+
+    //Connect to other ControlPoint
+    public void Connect (ControlPoint other) {
+        other.connectedPoints.AddRange(connectedPoints);
+        other.connectedPoints = other.connectedPoints.Distinct().ToList();
+        for (int i = 0; i < other.connectedPoints.Count; i++) {
+            other.connectedPoints[i].connectedPoints = other.connectedPoints;
+        }
+    }
+
+    //Check index in connected anchors
+    public int GetIndex () {
+        for (int i = 0; i < connectedPoints.Count; i++) {
+            if (connectedPoints[i] == this) {
+                return i;
+            }
+        }
+        return 0;
     }
 }

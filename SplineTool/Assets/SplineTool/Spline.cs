@@ -7,10 +7,10 @@ using System;
 public class Spline {
 
     public List<ControlPoint> points;
-    
-    public Spline() {
+
+    public Spline(Vector3 position) {
         points = new List<ControlPoint> {
-            new ControlPoint(Vector3.forward)
+            new ControlPoint(position)
         };
     }
 

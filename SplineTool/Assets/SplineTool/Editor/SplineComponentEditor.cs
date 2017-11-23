@@ -57,7 +57,8 @@ public class SplineComponentEditor : Editor {
                 ShowSelectedControlPoint(index, i, points[i]);
             }
         } else {
-            ShowControlPoint(spline, index, 0, points[0]);
+            if (component.splines[spline].points[index].GetIndex() == 0)
+                ShowControlPoint(spline, index, 0, points[0]);
         }
     }
 
@@ -81,7 +82,7 @@ public class SplineComponentEditor : Editor {
             Repaint();
         }
 
-        if (selectedIndex[activeSpline] == index && selectedIndex[1] == handle) {
+        if (selectedIndex[0] == index && selectedIndex[1] == handle) {
             EditorGUI.BeginChangeCheck();
             position = Handles.DoPositionHandle(position, handleRotation);
             if (EditorGUI.EndChangeCheck()) {
@@ -101,9 +102,19 @@ public class SplineComponentEditor : Editor {
 
     public override void OnInspectorGUI() {
         component = target as SplineComponent;
-        Debug.Log(activeSpline);
         if (activeSpline >= 0) {
             if (selectedIndex[0] >= 0 && selectedIndex[0] < component.splines[activeSpline].points.Count) {
+                if (component.splines[activeSpline].points[selectedIndex[0]].connectedPoints.Count > 1) {
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Previous")) {
+                        //component.splines[activeSpline].InsertControlPoint(selectedIndex[0]);
+                    }
+                    if (GUILayout.Button("Next")) {
+                        //component.splines[activeSpline].InsertControlPoint(selectedIndex[0]);
+                    }
+                    GUILayout.EndHorizontal();
+                }
+
                 GUILayout.Label("Selected Point");
                 if (selectedIndex[1] == 0) {
                     EditorGUI.BeginChangeCheck();
@@ -153,6 +164,14 @@ public class SplineComponentEditor : Editor {
                         component.splines[activeSpline].InsertControlPoint(selectedIndex[0]);
                         EditorUtility.SetDirty(component);
                     }
+                }
+
+                if (GUILayout.Button("Start new curve")) {
+                    Undo.RecordObject(component, "Start new curve");
+                    component.AddSpline(component.splines[activeSpline].points[selectedIndex[0]]);
+                    activeSpline = component.splines.Count - 1;
+                    selectedIndex = new int[] { 1, 0 };
+                    EditorUtility.SetDirty(component);
                 }
             }
         }
