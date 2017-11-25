@@ -57,8 +57,9 @@ public class SplineComponentEditor : Editor {
                 ShowSelectedControlPoint(index, i, points[i]);
             }
         } else {
-            int connectedIndex = component.splines[spline].points[index].connectedIndex;
-            if (connectedIndex < 0 || component.connectedPoints[connectedIndex] == component.splines[spline].points[index])
+            //int connectedIndex = component.splines[spline].points[index].connectedIndex;
+            //if (connectedIndex < 0 || component.connectedPoints[connectedIndex] == component.splines[spline].points[index])
+            if (true)
                 ShowControlPoint(spline, index, 0, points[0]);
         }
     }
@@ -111,19 +112,19 @@ public class SplineComponentEditor : Editor {
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Previous")) {
                         ControlPoint newPoint = component.GetConnectedPoint(component.splines[activeSpline].points[selectedIndex[0]], -1);
-                        Debug.Log(newPoint == component.splines[activeSpline].points[selectedIndex[0]]);
                         activeSpline = component.GetSpline(newPoint);
                         selectedIndex[0] = component.splines[activeSpline].points.IndexOf(newPoint);
                         selectedIndex[1] = 0;
-                        OnSceneGUI();
+                        //OnSceneGUI();
+                        SceneView.RepaintAll();
                     }
                     if (GUILayout.Button("Next")) {
                         ControlPoint newPoint = component.GetConnectedPoint(component.splines[activeSpline].points[selectedIndex[0]], 1);
-                        Debug.Log(newPoint == component.splines[activeSpline].points[selectedIndex[0]]);
                         activeSpline = component.GetSpline(newPoint);
                         selectedIndex[0] = component.splines[activeSpline].points.IndexOf(newPoint);
                         selectedIndex[1] = 0;
-                        OnSceneGUI();
+                        //OnSceneGUI();
+                        SceneView.RepaintAll();
                     }
                     GUILayout.EndHorizontal();
                 }

@@ -38,9 +38,10 @@ public class SplineComponent : MonoBehaviour {
         }
     }
 
+    //Get a control point connected to point. If there is none it returns point.
     public ControlPoint GetConnectedPoint (ControlPoint point, int offset) {
         int start = connectedPoints.IndexOf(point);
-        for (int i = start + offset; i < connectedPoints.Count; i += offset) {
+        for (int i = start + offset; i < connectedPoints.Count && i >= 0; i += offset) {
             if (connectedPoints[i].connectedIndex == point.connectedIndex) {
                 return connectedPoints[i];
             }

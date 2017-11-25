@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1616538746255148}
+  m_IsPrefabParent: 1
+--- !u!1 &1616538746255148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4832702716457340}
+  - component: {fileID: 114261001897828578}
+  m_Layer: 0
+  m_Name: SplineComponent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4832702716457340
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1616538746255148}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114261001897828578
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1616538746255148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3815cddb5036ac0489eadd550c7dbfb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  splines:
+  - points:
+    - anchor: {x: 0, y: 0, z: 1}
+      handles:
+      - {x: 0, y: 0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      mode: 2
+      connectedIndex: -1
+    - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
+      handles:
+      - {x: 0, y: 0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      mode: 2
+      connectedIndex: 0
+    - anchor: {x: -0.030316949, y: 0, z: 3.0259333}
+      handles:
+      - {x: 0, y: 0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      mode: 2
+      connectedIndex: -1
+  - points:
+    - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
+      handles:
+      - {x: -0.46454573, y: 0, z: -0.006052494}
+      - {x: 0.46454573, y: 0, z: 0.006052494}
+      mode: 2
+      connectedIndex: 0
+    - anchor: {x: 1.2258792, y: 0, z: 2.648068}
+      handles:
+      - {x: 0, y: 0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      mode: 2
+      connectedIndex: -1
+  connectedPoints:
+  - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
+    handles:
+    - {x: 0, y: 0, z: -0.5}
+    - {x: 0, y: 0, z: 0.5}
+    mode: 2
+    connectedIndex: 0
+  - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
+    handles:
+    - {x: -0.46454573, y: 0, z: -0.006052494}
+    - {x: 0.46454573, y: 0, z: 0.006052494}
+    mode: 2
+    connectedIndex: 0
