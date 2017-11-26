@@ -59,41 +59,29 @@ MonoBehaviour:
       - {x: 0, y: 0, z: 0.5}
       mode: 2
       connectedIndex: -1
-    - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
+    - anchor: {x: 0.8020115, y: 0, z: 2}
       handles:
       - {x: 0, y: 0, z: -0.5}
       - {x: 0, y: 0, z: 0.5}
       mode: 2
       connectedIndex: 0
-    - anchor: {x: -0.030316949, y: 0, z: 3.0259333}
+    - anchor: {x: -0.3346374, y: 0, z: 3}
       handles:
       - {x: 0, y: 0, z: -0.5}
       - {x: 0, y: 0, z: 0.5}
       mode: 2
       connectedIndex: -1
   - points:
-    - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
+    - anchor: {x: 0.8020115, y: 0, z: 2}
       handles:
-      - {x: -0.46454573, y: 0, z: -0.006052494}
-      - {x: 0.46454573, y: 0, z: 0.006052494}
+      - {x: -0.5577781, y: 0, z: -0.07443118}
+      - {x: 0.5577781, y: 0, z: 0.07443118}
       mode: 2
       connectedIndex: 0
-    - anchor: {x: 1.2258792, y: 0, z: 2.648068}
+    - anchor: {x: 1.3915825, y: 0, z: 3}
       handles:
       - {x: 0, y: 0, z: -0.5}
       - {x: 0, y: 0, z: 0.5}
       mode: 2
       connectedIndex: -1
-  connectedPoints:
-  - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
-    handles:
-    - {x: 0, y: 0, z: -0.5}
-    - {x: 0, y: 0, z: 0.5}
-    mode: 2
-    connectedIndex: 0
-  - anchor: {x: 0.5037867, y: 0, z: 1.9997473}
-    handles:
-    - {x: -0.46454573, y: 0, z: -0.006052494}
-    - {x: 0.46454573, y: 0, z: 0.006052494}
-    mode: 2
-    connectedIndex: 0
+  connectedPoints: []

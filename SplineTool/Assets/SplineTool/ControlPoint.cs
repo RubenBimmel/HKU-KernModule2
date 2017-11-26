@@ -19,28 +19,17 @@ public class ControlPoint {
     public BezierControlPointMode mode;
     public int connectedIndex;
 
-    //Simple constructor
-    public ControlPoint() {
-        anchor = Vector3.zero;
+    //Constructor with position
+    public ControlPoint(Vector3 position, Vector3 forward) {
+        anchor = position;
         handles = new Vector3[2] {
-            .5f * Vector3.back,
-            .5f * Vector3.forward
+            -.5f * forward,
+            .5f * forward
         };
         mode = BezierControlPointMode.Mirrored;
         connectedIndex = -1;
     }
 
-    //Constructor with position
-    public ControlPoint(Vector3 position) {
-        anchor = position;
-        handles = new Vector3[2] {
-            .5f * Vector3.back,
-            .5f * Vector3.forward
-        };
-        mode = BezierControlPointMode.Mirrored;
-        connectedIndex = -1;
-    }
-    
     //Get position
     public Vector3 GetAnchorPosition () {
         return anchor;
@@ -49,6 +38,11 @@ public class ControlPoint {
     //Get handle position
     public Vector3 GetHandlePosition(int index) {
         return anchor + handles[index];
+    }
+
+    //Get relative handle position
+    public Vector3 GetRelativeHandlePosition(int index) {
+        return handles[index];
     }
 
     //Set position

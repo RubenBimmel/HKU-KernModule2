@@ -20,9 +20,8 @@ public class SplineComponentEditor : Editor {
         handleRotation = Tools.pivotRotation == PivotRotation.Local ? handleTransform.rotation : Quaternion.identity;
 
         for (int i = 0; i < component.splines.Count; i++) {
-            ShowPoint(i, 0);
+            Color bezierColor = i == activeSpline ? Color.white : Color.cyan;
             for (int j = 1; j < component.splines[i].points.Count; j++) {
-                ShowPoint(i, j);
                 Handles.DrawBezier(
                     handleTransform.TransformPoint(
                         component.splines[i].points[j - 1].GetAnchorPosition()),
@@ -32,10 +31,12 @@ public class SplineComponentEditor : Editor {
                         component.splines[i].points[j - 1].GetHandlePosition(1)),
                     handleTransform.TransformPoint(
                         component.splines[i].points[j].GetHandlePosition(0)),
-                    Color.white,
+                    bezierColor,
                     null,
                     2f);
+                ShowPoint(i, j - 1);
             }
+            ShowPoint(i, component.splines[i].points.Count - 1);
         }
     }
 
@@ -57,9 +58,11 @@ public class SplineComponentEditor : Editor {
                 ShowSelectedControlPoint(index, i, points[i]);
             }
         } else {
-            //int connectedIndex = component.splines[spline].points[index].connectedIndex;
-            //if (connectedIndex < 0 || component.connectedPoints[connectedIndex] == component.splines[spline].points[index])
-            if (true)
+            int connectedIndex = component.splines[spline].points[index].connectedIndex;
+            if (connectedIndex < 0 
+                || selectedIndex[0] < 0 
+                || activeSpline < 0
+                || component.splines[spline].points[index].connectedIndex != component.splines[activeSpline].points[selectedIndex[0]].connectedIndex)
                 ShowControlPoint(spline, index, 0, points[0]);
         }
     }
@@ -107,6 +110,7 @@ public class SplineComponentEditor : Editor {
         component = target as SplineComponent;
         if (activeSpline >= 0) {
             if (selectedIndex[0] >= 0 && selectedIndex[0] < component.splines[activeSpline].points.Count) {
+                GUILayout.Label("Selected Point");
                 int connectedIndex = component.splines[activeSpline].points[selectedIndex[0]].connectedIndex;
                 if (connectedIndex >= 0) {
                     GUILayout.BeginHorizontal();
@@ -129,7 +133,6 @@ public class SplineComponentEditor : Editor {
                     GUILayout.EndHorizontal();
                 }
 
-                GUILayout.Label("Selected Point");
                 if (selectedIndex[1] == 0) {
                     EditorGUI.BeginChangeCheck();
                     Vector3 anchor = EditorGUILayout.Vector3Field("Position (anchor)",
@@ -137,7 +140,7 @@ public class SplineComponentEditor : Editor {
                     if (EditorGUI.EndChangeCheck()) {
                         Undo.RecordObject(component, "Move Anchor");
                         EditorUtility.SetDirty(component);
-                        component.splines[activeSpline].points[selectedIndex[0]].setAnchorPosition(anchor);
+                        component.SetControlPoint(component.splines[activeSpline].points[selectedIndex[0]], anchor);
                     }
                 }
                 else {
@@ -180,6 +183,14 @@ public class SplineComponentEditor : Editor {
                     }
                 }
 
+                if (GUILayout.Button("Remove point")) {
+                    Undo.RecordObject(component, "Remove point");
+                    component.RemovePoint(activeSpline, selectedIndex[0]);
+                    activeSpline = -1;
+                    selectedIndex = new int[] { -1, 0 };
+                    EditorUtility.SetDirty(component);
+                }
+
                 if (GUILayout.Button("Start new curve")) {
                     Undo.RecordObject(component, "Start new curve");
                     component.AddSpline(component.splines[activeSpline].points[selectedIndex[0]]);
@@ -187,6 +198,7 @@ public class SplineComponentEditor : Editor {
                     selectedIndex = new int[] { 1, 0 };
                     EditorUtility.SetDirty(component);
                 }
+                
             }
         }
     }

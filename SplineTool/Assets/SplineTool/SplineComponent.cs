@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SplineComponent : MonoBehaviour {
+public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public List<Spline> splines;
     public List<ControlPoint> connectedPoints;
@@ -16,14 +17,35 @@ public class SplineComponent : MonoBehaviour {
 
     public void AddSpline (ControlPoint point) {
         splines.Add(new Spline(point.GetAnchorPosition()));
-        if (point.connectedIndex < 0) {
-            connectedPoints.Add(point);
-            
+        ConnectPoints(point, splines[splines.Count - 1].points[0]);
+    }
+
+    public void RemovePoint (int spline, int index) {
+        ControlPoint point = splines[spline].points[index];
+        if (point != null) {
+            connectedPoints.Remove(point);
+            splines[spline].points.Remove(point);
         }
-        connectedPoints.Add(splines[splines.Count - 1].points[0]);
-        int index = connectedPoints.IndexOf(point);
-        point.connectedIndex = index;
-        splines[splines.Count - 1].points[0].connectedIndex = index;
+    }
+
+    // Adds both points to the connected points list (if they aren't already) and gives them the same connectedIndex
+    public void ConnectPoints (ControlPoint first, ControlPoint second) {
+        if (first.connectedIndex < 0) {
+            connectedPoints.Add(first);
+            first.connectedIndex = connectedPoints.IndexOf(first);
+        }
+
+        if (second.connectedIndex < 0) {
+            connectedPoints.Add(second);
+            second.connectedIndex = connectedPoints.IndexOf(second);
+        }
+
+        int newIndex = Mathf.Min(first.connectedIndex, second.connectedIndex);
+        for (int i = 0; i < connectedPoints.Count; i++) {
+            if (connectedPoints[i].connectedIndex == first.connectedIndex || connectedPoints[i].connectedIndex == second.connectedIndex) {
+                connectedPoints[i].connectedIndex = newIndex;
+            }
+        }
     }
 
     //This function should be used instead directly in the control point to be able to move connected points
@@ -56,5 +78,20 @@ public class SplineComponent : MonoBehaviour {
             }
         }
         return -1;
+    }
+
+    public void OnBeforeSerialize() {
+    }
+
+    public void OnAfterDeserialize() {
+        connectedPoints = new List<ControlPoint>();
+        for (int i = 0; i < splines.Count; i++) {
+            for (int j = 0; j < splines[i].points.Count; j++) {
+                if (splines[i].points[j].connectedIndex >= 0) {
+                    connectedPoints.Add(splines[i].points[j]);
+                }
+            }
+        }
+        connectedPoints.Sort(delegate (ControlPoint a, ControlPoint b) { return a.connectedIndex.CompareTo(b.connectedIndex); });
     }
 }
