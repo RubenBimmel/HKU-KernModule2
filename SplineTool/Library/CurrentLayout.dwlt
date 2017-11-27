@@ -86,10 +86,10 @@ MonoBehaviour:
     y: 30
     width: 1920
     height: 947
-  m_MinSize: {x: 713, y: 492}
-  m_MaxSize: {x: 18008, y: 14042}
+  m_MinSize: {x: 711, y: 492}
+  m_MaxSize: {x: 18006, y: 14042}
   vertical: 0
-  controlID: 150
+  controlID: 72
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -130,8 +130,8 @@ MonoBehaviour:
     y: 0
     width: 1481
     height: 947
-  m_MinSize: {x: 436, y: 492}
-  m_MaxSize: {x: 14006, y: 14042}
+  m_MinSize: {x: 434, y: 492}
+  m_MaxSize: {x: 14004, y: 14042}
   vertical: 1
   controlID: 10
 --- !u!114 &7
@@ -205,10 +205,10 @@ MonoBehaviour:
     y: 676
     width: 1481
     height: 271
-  m_MinSize: {x: 436, y: 271}
-  m_MaxSize: {x: 14006, y: 10021}
+  m_MinSize: {x: 434, y: 271}
+  m_MaxSize: {x: 14004, y: 10021}
   vertical: 0
-  controlID: 87
+  controlID: 35
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -330,18 +330,18 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Scenes
+    - Assets/SplineTool/Editor
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scenes
+  - Assets/SplineTool/Editor
   m_LastFoldersGridSize: -1
   m_LastProjectPath: D:\HKU\Jaar2Dev\Kernmodule2\HKU-KernModule2\SplineTool
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 50270000
-    m_LastClickedID: 10064
+    m_SelectedIDs: 70270000
+    m_LastClickedID: 10096
     m_ExpandedIDs: 000000002e2700003e27000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -528,14 +528,14 @@ MonoBehaviour:
     width: 1479
     height: 655
   m_SceneLighting: 1
-  lastFramingTime: 4508.1032796543195
+  lastFramingTime: 8631.114544369959
   m_2DMode: 0
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -0.08866778, y: -0.37112522, z: 2.5223424}
+    m_Target: {x: 0.38539124, y: -0.47854292, z: 2.5611413}
     speed: 2
-    m_Value: {x: -0.08866778, y: -0.37112522, z: 2.5223424}
+    m_Value: {x: 0.38539124, y: -0.47854292, z: 2.5611413}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -558,13 +558,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: -0.3481896, y: -0.61111975, z: 0.34267288, w: -0.6230676}
+    m_Target: {x: -0.22106393, y: 0.7770327, z: -0.37503004, w: -0.45511866}
     speed: 2
-    m_Value: {x: -0.3481302, y: -0.6110155, z: 0.34261444, w: -0.62296134}
+    m_Value: {x: -0.22101645, y: 0.7768658, z: -0.37494949, w: -0.4550209}
   m_Size:
-    m_Target: 5.4350743
+    m_Target: 3.2036445
     speed: 2
-    m_Value: 5.4350743
+    m_Value: 3.2036445
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -604,9 +604,9 @@ MonoBehaviour:
     height: 250
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: a4fbffff
-    m_LastClickedID: -1116
-    m_ExpandedIDs: a6fbffff00000000
+    m_SelectedIDs: ae270000
+    m_LastClickedID: 10158
+    m_ExpandedIDs: 0c3dfeffa6fbffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

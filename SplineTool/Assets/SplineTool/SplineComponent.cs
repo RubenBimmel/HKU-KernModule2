@@ -94,4 +94,10 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
         connectedPoints.Sort(delegate (ControlPoint a, ControlPoint b) { return a.connectedIndex.CompareTo(b.connectedIndex); });
     }
+
+    /*public void OnDrawGizmos() {
+        for (int i = 0; i < splines.Count; i++) {
+            splines[i].Draw(transform);
+        }
+    }*/
 }

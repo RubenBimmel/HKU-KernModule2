@@ -14,6 +14,7 @@ public class SplineComponentEditor : Editor {
     private int[] selectedIndex = { -1, 0};
     private int activeSpline = -1;
 
+    // Draw splines and handles
     private void OnSceneGUI() {
         component = target as SplineComponent;
         handleTransform = component.transform;
@@ -40,6 +41,7 @@ public class SplineComponentEditor : Editor {
         }
     }
 
+    // Generate ControlPoint positions
     private void ShowPoint(int spline, int index) {
         Vector3[] points = new Vector3[3] {
             handleTransform.TransformPoint(
@@ -55,7 +57,7 @@ public class SplineComponentEditor : Editor {
             Handles.DrawLine(points[0], points[1]);
             Handles.DrawLine(points[0], points[2]);
             for (int i = 0; i < 3; i++) {
-                ShowSelectedControlPoint(index, i, points[i]);
+                ShowControlPoint(spline, index, i, points[i], true);
             }
         } else {
             int connectedIndex = component.splines[spline].points[index].connectedIndex;
@@ -63,46 +65,89 @@ public class SplineComponentEditor : Editor {
                 || selectedIndex[0] < 0 
                 || activeSpline < 0
                 || component.splines[spline].points[index].connectedIndex != component.splines[activeSpline].points[selectedIndex[0]].connectedIndex)
-                ShowControlPoint(spline, index, 0, points[0]);
+                ShowControlPoint(spline, index, 0, points[0], false);
         }
     }
 
-    public void ShowControlPoint(int spline, int index, int handle, Vector3 position) {
+    // Draw ControlPoints
+    private void ShowControlPoint(int spline, int index, int handle, Vector3 position, bool selected) {
         float size = HandleUtility.GetHandleSize(position);
-        Handles.color = Color.blue;
+        Handles.color = selected ? Color.white : Color.blue;
 
         if (Handles.Button(position, handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
             selectedIndex = new int[] { index, handle };
             activeSpline = spline;
             Repaint();
         }
+        if (selected) {
+            switch(Tools.current) {
+                case Tool.Move:
+                    if (selectedIndex[1] == handle) MoveHandle(index, handle, position);
+                    break;
+                case Tool.Rotate:
+                    if (handle == 0) RotationHandle (index, position);
+                    break;
+                case Tool.Scale:
+                    if (handle == 0) ScaleHandle(index, position);
+                    break;
+            }
+        }
     }
 
-    public void ShowSelectedControlPoint(int index, int handle, Vector3 position) {
-        float size = HandleUtility.GetHandleSize(position);
-        Handles.color = Color.white;
-
-        if (Handles.Button(position, handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
-            selectedIndex = new int[] { index, handle };
-            Repaint();
-        }
-
-        if (selectedIndex[0] == index && selectedIndex[1] == handle) {
-            EditorGUI.BeginChangeCheck();
-            position = Handles.DoPositionHandle(position, handleRotation);
-            if (EditorGUI.EndChangeCheck()) {
-                Undo.RecordObject(component, "Move Point");
-                EditorUtility.SetDirty(component);
-                if (handle == 0) {
-                    component.SetControlPoint(
-                        component.splines[activeSpline].points[index],
-                        handleTransform.InverseTransformPoint(position));
-                }
-                else {
-                    component.splines[activeSpline].points[index].setHandlePosition(handle - 1,
-                        handleTransform.InverseTransformPoint(position));
-                }
+    // Draw movement handles
+    private void MoveHandle (int index, int handle, Vector3 position) {
+        EditorGUI.BeginChangeCheck();
+        position = Handles.DoPositionHandle(position, handleRotation);
+        if (EditorGUI.EndChangeCheck()) {
+            Undo.RecordObject(component, "Move Point");
+            EditorUtility.SetDirty(component);
+            if (handle == 0) {
+                component.SetControlPoint(
+                    component.splines[activeSpline].points[index],
+                    handleTransform.InverseTransformPoint(position));
             }
+            else {
+                component.splines[activeSpline].points[index].setHandlePosition(handle - 1,
+                    handleTransform.InverseTransformPoint(position));
+            }
+        }
+    }
+
+    // Draw rotation handle
+    private void RotationHandle(int index, Vector3 position) {
+        if (Tools.pivotRotation == PivotRotation.Global) {
+            /*EditorGUI.BeginChangeCheck();
+            Quaternion rotation = component.splines[activeSpline].points[index].GetHandleRotation();
+            Quaternion handleRotation = (Tools.pivotRotation == PivotRotation.Global) ? Quaternion.identity : rotation;
+            handleRotation = Handles.RotationHandle(handleRotation, position);
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Rotate Point");
+                EditorUtility.SetDirty(component);
+                component.splines[activeSpline].points[index].SetHandleRotation(rotation * handleRotation);
+            }*/
+        } else {
+            EditorGUI.BeginChangeCheck();
+            Quaternion rotation = component.splines[activeSpline].points[index].GetHandleRotation();
+            rotation = Handles.RotationHandle(rotation, position);
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Rotate Point");
+                EditorUtility.SetDirty(component);
+                component.splines[activeSpline].points[index].SetHandleRotation(rotation);
+            }
+        }
+    }
+
+    // Draw scale handle
+    private void ScaleHandle(int index, Vector3 position) {
+        EditorGUI.BeginChangeCheck();
+        Quaternion rotation = component.splines[activeSpline].points[index].GetHandleRotation();
+        float scale = component.splines[activeSpline].points[index].GetHandleScale();
+        Handles.color = new Color(.4f, .4f, .8f);
+        scale = Handles.ScaleSlider(scale, position, Vector3.forward, rotation, HandleUtility.GetHandleSize(position), 0f);
+        if (EditorGUI.EndChangeCheck()) {
+            Undo.RecordObject(component, "Scale Point");
+            EditorUtility.SetDirty(component);
+            component.splines[activeSpline].points[index].SetHandleScale(scale);
         }
     }
 

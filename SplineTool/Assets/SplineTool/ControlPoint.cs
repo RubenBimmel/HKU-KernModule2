@@ -65,4 +65,22 @@ public class ControlPoint {
                 break;
         }
     }
+
+    public Quaternion GetHandleRotation () {
+        return Quaternion.FromToRotation(Vector3.forward, handles[1]);
+    }
+
+    public void SetHandleRotation (Quaternion rotation) {
+        handles[0] = rotation * Vector3.back * handles[0].magnitude;
+        handles[1] = rotation* Vector3.forward * handles[1].magnitude;
+    }
+
+    public float GetHandleScale () {
+        return handles[1].magnitude;
+    }
+
+    public void SetHandleScale (float scale) {
+        handles[0] = handles[0].normalized * scale;
+        handles[1] = handles[1].normalized * scale;
+    }
 }
