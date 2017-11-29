@@ -7,9 +7,9 @@ using System;
 public class Spline {
 
     public List<ControlPoint> points;
-    private static int lineSteps = 20;
+    //private static int lineSteps = 20;
 
-    public Spline(Vector3 position) {
+    public Spline(Vector3 position, Transform newComponent) {
         points = new List<ControlPoint> {
             new ControlPoint(position, Vector3.forward),
             new ControlPoint(position + Vector3.forward, Vector3.forward)
@@ -21,21 +21,67 @@ public class Spline {
     }
 
     public void InsertControlPoint (int index) {
-        points.Insert(index, new ControlPoint(points[index].GetAnchorPosition() + points[index].GetRelativeHandlePosition(0).normalized, .5f * points[index].GetRelativeHandlePosition(1).normalized));
+        Vector3 newAnchor = new Vector3();
+        Vector3 newDirection = new Vector3();
+        if (index == 0) {
+            newAnchor = points[index].GetAnchorPosition() + points[index].GetRelativeHandlePosition(0).normalized;
+            newDirection = 5f * points[index].GetRelativeHandlePosition(1).normalized;
+        } else {
+            newAnchor = GetPoint(index - 1, .5f);
+            newDirection = GetDirection(index - 1, .5f) * points[index].GetRelativeHandlePosition(0).magnitude * .5f;
+            points[index - 1].SetMode(BezierControlPointMode.Aligned);
+            points[index - 1].SetRelativeHandlePosition(1, points[index - 1].GetRelativeHandlePosition(1) * .5f);
+            points[index].SetMode(BezierControlPointMode.Aligned);
+            points[index].SetRelativeHandlePosition(0, points[index].GetRelativeHandlePosition(0) * .5f);
+        }
+        points.Insert(index, new ControlPoint(newAnchor, newDirection));
     }
 
-    public Vector3 GetPoint(Transform component, float t) {
+    public Vector3 GetPoint(float t) {
         int curve = (int)t;
         t = t % 1;
         if (curve == points.Count - 1) {
             curve = points.Count - 2;
             t = 1;
         }
-        return component.TransformPoint(Bezier.GetPoint(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1), 
-            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t));
+        return GetPoint(curve, t);
     }
 
-    /*public void Draw (Transform component) {
+    private Vector3 GetPoint(int curve, float t) {
+        return Bezier.GetPoint(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
+            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
+    }
+
+    public Vector3 GetDirection(float t) {
+        int curve = (int)t;
+        t = t % 1;
+        if (curve == points.Count - 1) {
+            curve = points.Count - 2;
+            t = 1;
+        }
+        return GetDirection(curve, t);
+    }
+
+    private Vector3 GetDirection(int curve, float t) {
+        return Bezier.GetFirstDerivative(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
+            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
+    }
+
+    public Vector3 GetUp(float t) {
+        int curve = (int)t;
+        t = t % 1;
+        if (curve == points.Count - 1) {
+            curve = points.Count - 2;
+            t = 1;
+        }
+        Vector3 direction = Bezier.GetFirstDerivative(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
+             points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
+        float angle = Mathf.LerpAngle(points[curve].GetEulerAngles().z, points[curve + 1].GetEulerAngles().z, t);
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        return Vector3.ProjectOnPlane(rotation * Vector3.up, direction);
+    }
+
+    /*public void Draw () {
         Vector3 lineStart = GetPoint(component, 0f);
         Gizmos.color = Color.cyan;
         for (int i = 1; i < lineSteps * (points.Count - 1) + 1; i++) {

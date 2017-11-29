@@ -3,28 +3,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public List<Spline> splines;
     public List<ControlPoint> connectedPoints;
+    private new Transform transform;
 
     public void Reset() {
         splines = new List<Spline> {
-            new Spline(Vector3.forward)
+            new Spline(Vector3.forward, transform)
         };
         connectedPoints = new List<ControlPoint> { };
     }
 
+    public void Awake() {
+        transform = gameObject.transform;
+    }
+
     public void AddSpline (ControlPoint point) {
-        splines.Add(new Spline(point.GetAnchorPosition()));
+        splines.Add(new Spline(point.GetAnchorPosition(), transform));
         ConnectPoints(point, splines[splines.Count - 1].points[0]);
     }
 
-    public void RemovePoint (int spline, int index) {
+    public void RemovePoint(int spline, int index) {
         ControlPoint point = splines[spline].points[index];
         if (point != null) {
-            connectedPoints.Remove(point);
+            int connectedIndex = point.connectedIndex;
+            if (connectedIndex >= 0) {
+                connectedPoints.Remove(point);
+
+                int count = 0;
+                ControlPoint lastPoint = null;
+                for (int i = 0; i < connectedPoints.Count; i++) {
+                    if (connectedPoints[i].connectedIndex == connectedIndex) {
+                        count++;
+                        lastPoint = connectedPoints[i];
+                    }
+                }
+                if (count == 1) {
+                    lastPoint.connectedIndex = -1;
+                    connectedPoints.Remove(lastPoint);
+                }
+            }
             splines[spline].points.Remove(point);
+        }
+        if (splines[spline].points.Count == 1) {
+            RemovePoint(spline, 0);
+        }
+        else if (splines[spline].points.Count == 0) {
+            splines.RemoveAt(spline);
         }
     }
 
@@ -49,14 +77,14 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     }
 
     //This function should be used instead directly in the control point to be able to move connected points
-    public void SetControlPoint (ControlPoint point, Vector3 position) {
+    public void SetPointAnchorPosition (ControlPoint point, Vector3 position) {
         if (point.connectedIndex >= 0) {
             for (int i = 0; i < connectedPoints.Count; i++) {
                 if (connectedPoints[i].connectedIndex == point.connectedIndex)
-                    connectedPoints[i].setAnchorPosition(position);
+                    connectedPoints[i].SetAnchorPosition(position);
             }
         } else {
-            point.setAnchorPosition(position);
+            point.SetAnchorPosition(position);
         }
     }
 
@@ -69,6 +97,18 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             }
         }
         return point;
+    }
+
+    public Vector3 GetPoint (int spline, float t) {
+        return transform.TransformPoint(splines[spline].GetPoint(t));
+    }
+
+    public Vector3 GetDirection (int spline, float t) {
+        return transform.TransformPoint(splines[spline].GetDirection(t));
+    }
+
+    public Vector3 GetUp (int spline, float t) {
+        return transform.TransformPoint(splines[spline].GetUp(t));
     }
 
     public int GetSpline (ControlPoint point) {
