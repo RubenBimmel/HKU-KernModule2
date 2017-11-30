@@ -73,10 +73,8 @@ public class Spline {
             curve = points.Count - 2;
             t = 1;
         }
-        Vector3 direction = Bezier.GetFirstDerivative(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
-             points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
-        float angle = Mathf.LerpAngle(points[curve].GetEulerAngles().z, points[curve + 1].GetEulerAngles().z, t);
-        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        Vector3 direction = GetDirection(curve, t);
+        Quaternion rotation = Quaternion.Lerp( points[curve].GetRotation(), points[curve + 1].GetRotation(), t);
         return Vector3.ProjectOnPlane(rotation * Vector3.up, direction);
     }
 }

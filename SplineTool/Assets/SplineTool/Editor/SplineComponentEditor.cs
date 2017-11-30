@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -17,7 +18,8 @@ public class SplineComponentEditor : Editor {
 
     private const float handleSize = 0.05f;
     private const float pickSize = 0.07f;
-    private int[] selectedIndex = { -1, 0};
+    private int selectedIndex = -1;
+    private int selectedHandle = 0;
     private int activeSpline = -1;
 
     private static int lineSteps = 10;
@@ -29,8 +31,19 @@ public class SplineComponentEditor : Editor {
         componentTransform = component.transform;
         componentRotation = Tools.pivotRotation == PivotRotation.Local ? componentTransform.rotation : Quaternion.identity;
 
+        DrawBeziers();
+
+        if (Tools.pivotRotation != currentPivotRotation) {
+            currentPivotRotation = Tools.pivotRotation;
+            handleRotation = Quaternion.identity;
+            if (activeSpline >= 0 && selectedIndex >= 0)
+                pointRotation = component.GetRotation(activeSpline, selectedIndex);
+        }
+    }
+
+    private void DrawBeziers() {
         for (int i = 0; i < component.splineCount; i++) {
-            Color bezierColor = i == activeSpline ? Color.white : Color.cyan;
+            Color bezierColor = (i == activeSpline && tool != 1 && tool != 2) ? Color.white : Color.cyan;
             float bezierWidth = i == activeSpline ? 3f : 2f;
             for (int j = 1; j < component.PointCount(i); j++) {
                 Handles.DrawBezier(
@@ -41,61 +54,61 @@ public class SplineComponentEditor : Editor {
                     bezierColor,
                     null,
                     bezierWidth);
-                ShowPoint(i, j - 1);
             }
-            ShowPoint(i, component.PointCount(i) - 1);
+
+            for (int j = 0; j < component.PointCount(i); j++) {
+                switch (tool) {
+                    case -1:
+                        ShowPoint(i, j, true);
+                        break;
+                    case 0:
+                        ShowPoint(i, j, true);
+                        break;
+                    case 1:
+                        ShowPoint(i, j, false);
+                        break;
+                    case 2:
+                        if (component.GetConnectedIndex(i, j) >= 0) {
+                            ShowPoint(i, j, false);
+                        }
+                        break;
+                }
+            }
         }
 
-        if (activeSpline >= 0)
+        if (activeSpline >= 0 && tool != 1 && tool != 2)
             ShowAngles(activeSpline);
-
-        if (Tools.pivotRotation != currentPivotRotation) {
-            currentPivotRotation = Tools.pivotRotation;
-            handleRotation = Quaternion.identity;
-            pointRotation = component.GetRotation(activeSpline, selectedIndex[0]);
-        }
-    }
-
-    private void ShowAngles (int spline) {
-        Vector3 lineStart = component.GetPoint(spline, 0f);
-        Gizmos.color = Color.cyan;
-        for (int i = 1; i < lineSteps * (component.PointCount(spline) - 1) + 1; i++) {
-            Vector3 lineEnd = component.GetPoint(spline, i / (float)lineSteps);
-            Handles.color = new Color(.2f, 1, .2f);
-            Vector3 up = component.GetUp(spline, (i - 1) / (float)lineSteps);
-            Handles.DrawLine(lineStart + finSize * up, lineEnd);
-            Handles.DrawLine(lineStart, lineStart + finSize * up);
-            Handles.color = new Color(1, .2f, .2f);
-            Vector3 forward = component.GetDirection(spline, (i - 1) / (float)lineSteps);
-            Vector3 right = Vector3.Cross(up, forward).normalized;
-            Handles.DrawLine(lineStart + finSize * right, lineEnd);
-            Handles.DrawLine(lineStart, lineStart + finSize * right);
-            lineStart = lineEnd;
-        }
     }
 
     // Generate ControlPoint positions
-    private void ShowPoint(int spline, int index) {
+    private void ShowPoint(int spline, int index, bool drawHandles) {
         Vector3[] points = new Vector3[3] {
             component.GetPoint(spline, index),
             component.GetHandle(spline, index, 0),
             component.GetHandle(spline, index, 1)
         };
 
-        if (selectedIndex[0] == index && spline == activeSpline) {
-            Handles.color = Color.gray;
-            Handles.DrawLine(points[0], points[1]);
-            Handles.DrawLine(points[0], points[2]);
-            for (int i = 0; i < 3; i++) {
-                ShowControlPoint(spline, index, i, points[i], true);
+        if (selectedIndex == index && spline == activeSpline) {
+            if (drawHandles) {
+                Handles.color = Color.gray;
+                Handles.DrawLine(points[0], points[1]);
+                Handles.DrawLine(points[0], points[2]);
+                for (int i = 0; i < 3; i++) {
+                    ShowControlPoint(spline, index, i, points[i], true);
+                }
             }
-        } else {
+            else {
+                ShowControlPoint(spline, index, 0, points[0], true);
+            }
+        }
+        else {
             int connectedIndex = component.GetConnectedIndex(spline, index);
-            if (connectedIndex < 0
-                || selectedIndex[0] < 0
-                || activeSpline < 0
-                || component.GetConnectedIndex(spline, index) != component.GetConnectedIndex(activeSpline, selectedIndex[0]))
+            if (connectedIndex < 0) {
                 ShowControlPoint(spline, index, 0, points[0], false);
+            }
+            else if (selectedIndex < 0 || activeSpline < 0 || connectedIndex != component.GetConnectedIndex(activeSpline, selectedIndex)) {
+                ShowControlPoint(spline, index, 0, points[0], false);
+            }
         }
     }
 
@@ -105,19 +118,22 @@ public class SplineComponentEditor : Editor {
         Handles.color = selected ? Color.white : Color.blue;
 
         if (Handles.Button(position, componentRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
-            selectedIndex = new int[] { index, handle };
-            activeSpline = spline;
+            if (tool != 1) {
+                selectedIndex = index;
+                selectedHandle = handle;
+                activeSpline = spline;
+            }
             handleRotation = Quaternion.identity;
             pointRotation = component.GetRotation(spline, index);
             Repaint();
         }
         if (selected) {
-            switch(Tools.current) {
+            switch (Tools.current) {
                 case Tool.Move:
-                    if (selectedIndex[1] == handle) MoveHandle(index, handle, position);
+                    if (selectedHandle == handle) MoveHandle(index, handle, position);
                     break;
                 case Tool.Rotate:
-                    if (handle == 0) RotationHandle (index, position);
+                    if (handle == 0) RotationHandle(index, position);
                     break;
                 case Tool.Scale:
                     if (handle == 0) ScaleHandle(index, position);
@@ -127,10 +143,10 @@ public class SplineComponentEditor : Editor {
     }
 
     // Draw movement handles
-    private void MoveHandle (int index, int handle, Vector3 position) {
+    private void MoveHandle(int index, int handle, Vector3 position) {
         EditorGUI.BeginChangeCheck();
         Quaternion rotation = Tools.pivotRotation == PivotRotation.Global ? componentRotation : component.GetRotation(activeSpline, index);
-            position = Handles.DoPositionHandle(position, rotation);
+        position = Handles.DoPositionHandle(position, rotation);
         if (EditorGUI.EndChangeCheck()) {
             Undo.RecordObject(component, "Move Point");
             EditorUtility.SetDirty(component);
@@ -146,21 +162,28 @@ public class SplineComponentEditor : Editor {
     // Draw rotation handle
     private void RotationHandle(int index, Vector3 position) {
         if (Tools.pivotRotation == PivotRotation.Global) {
-           EditorGUI.BeginChangeCheck();
+            EditorGUI.BeginChangeCheck();
             handleRotation = Handles.RotationHandle(handleRotation, position);
             if (EditorGUI.EndChangeCheck()) {
                 Undo.RecordObject(component, "Rotate Point");
                 EditorUtility.SetDirty(component);
-                component.SetRotation(activeSpline, index, handleRotation * pointRotation);
+                if (tool == 0)
+                    component.SetRotation(activeSpline, index, handleRotation * pointRotation);
+                else if (tool == 2)
+                    component.RotateConnection(activeSpline, index, handleRotation * pointRotation);
             }
-        } else {
+        }
+        else {
             EditorGUI.BeginChangeCheck();
             Quaternion rotation = component.GetRotation(activeSpline, index);
             rotation = Handles.RotationHandle(rotation, position);
             if (EditorGUI.EndChangeCheck()) {
                 Undo.RecordObject(component, "Rotate Point");
                 EditorUtility.SetDirty(component);
+                if (tool == 0)
                 component.SetRotation(activeSpline, index, rotation);
+                else if (tool == 2)
+                    component.RotateConnection(activeSpline, index, rotation);
             }
         }
     }
@@ -181,9 +204,35 @@ public class SplineComponentEditor : Editor {
         }
     }
 
+    private void ShowAngles(int spline) {
+        Vector3 lineStart = component.GetPoint(spline, 0f);
+        Gizmos.color = Color.cyan;
+        for (int i = 1; i < lineSteps * (component.PointCount(spline) - 1) + 1; i++) {
+            Vector3 lineEnd = component.GetPoint(spline, i / (float)lineSteps);
+            Handles.color = new Color(.2f, 1, .2f);
+            Vector3 up = component.GetUp(spline, (i - 1) / (float)lineSteps);
+            Handles.DrawLine(lineStart + finSize * up, lineEnd);
+            Handles.DrawLine(lineStart, lineStart + finSize * up);
+            Handles.color = new Color(1, .2f, .2f);
+            Vector3 forward = component.GetDirection(spline, (i - 1) / (float)lineSteps);
+            Vector3 right = Vector3.Cross(up, forward).normalized;
+            Handles.DrawLine(lineStart + finSize * right, lineEnd);
+            Handles.DrawLine(lineStart, lineStart + finSize * right);
+            lineStart = lineEnd;
+        }
+    }
+
     public override void OnInspectorGUI() {
         component = target as SplineComponent;
-        tool = GUILayout.Toolbar(tool, new string[] { "Edit", "Multi", "Junction", "Spline" });
+        int newtool = GUILayout.Toolbar(tool, new string[] { "Edit", "Multi", "Junction", "Spline" });
+        if (tool != newtool) {
+            tool = newtool;
+            if (tool >= 2) {
+                activeSpline = -1;
+                selectedIndex = -1;
+            }
+            SceneView.RepaintAll();
+        }
         EditorGUILayout.Space();
 
         switch (tool) {
@@ -191,8 +240,10 @@ public class SplineComponentEditor : Editor {
                 DrawEditInspector();
                 break;
             case 1:
+                GUILayout.Label("Not available");
                 break;
             case 2:
+                DrawJunctionInspector();
                 break;
             case 3:
                 break;
@@ -201,134 +252,167 @@ public class SplineComponentEditor : Editor {
 
     public void DrawEditInspector() {
         if (activeSpline >= 0) {
-            if (selectedIndex[0] >= 0 && selectedIndex[0] < component.PointCount(activeSpline)) {
-                if (component.GetConnectedIndex(activeSpline, selectedIndex[0]) >= 0) {
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Previous", GUILayout.Height(EditorGUIUtility.singleLineHeight))) {
-                        ControlPoint newPoint = component.GetConnectedPoint(activeSpline, selectedIndex[0], -1);
-                        activeSpline = component.GetSpline(newPoint);
-                        selectedIndex[0] = component.GetIndex(activeSpline, newPoint);
-                        selectedIndex[1] = 0;
-                        SceneView.RepaintAll();
-                    }
-                    int connectedIndex = component.GetConnectedIndex(activeSpline, selectedIndex[0]);
-                    string label = string.Concat("( Handle ", component.GetConnectedPointIndex(activeSpline, selectedIndex[0]) + 1, " of ", component.GetConnectedPointCount(connectedIndex), " )");
-                    GUILayout.Label(label, GUILayout.Width(100));
-                    if (GUILayout.Button("  Next  ", GUILayout.Height(EditorGUIUtility.singleLineHeight))) {
-                        ControlPoint newPoint = component.GetConnectedPoint(activeSpline, selectedIndex[0], 1);
-                        activeSpline = component.GetSpline(newPoint);
-                        selectedIndex[0] = component.GetIndex(activeSpline, newPoint);
-                        selectedIndex[1] = 0;
-                        SceneView.RepaintAll();
-                    }
-                    GUILayout.EndHorizontal();
+            if (component.GetConnectedIndex(activeSpline, selectedIndex) >= 0) {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Previous", GUILayout.Height(EditorGUIUtility.singleLineHeight))) {
+                    ControlPoint newPoint = component.GetConnectedPoint(activeSpline, selectedIndex, -1);
+                    activeSpline = component.GetSpline(newPoint);
+                    selectedIndex = component.GetIndex(activeSpline, newPoint);
+                    selectedHandle = 0;
+                    SceneView.RepaintAll();
                 }
-
-                EditorGUILayout.Space();
-                GUILayout.Label("Anchor:");
-                EditorGUI.indentLevel++;
-
-                EditorGUI.BeginChangeCheck();
-                Vector3 anchor = EditorGUILayout.Vector3Field("Position", component.GetPoint(activeSpline, selectedIndex[0]));
-                if (EditorGUI.EndChangeCheck()) {
-                    Undo.RecordObject(component, "Move Anchor");
-                    EditorUtility.SetDirty(component);
-                    component.SetAnchorPosition(activeSpline, selectedIndex[0], anchor);
+                int connectedIndex = component.GetConnectedIndex(activeSpline, selectedIndex);
+                string label = string.Concat("( Handle ", component.GetIndexInConnection(activeSpline, selectedIndex) + 1, " of ", component.GetConnectionPointCount(connectedIndex), " )");
+                GUILayout.Label(label, GUILayout.Width(100));
+                if (GUILayout.Button("  Next  ", GUILayout.Height(EditorGUIUtility.singleLineHeight))) {
+                    ControlPoint newPoint = component.GetConnectedPoint(activeSpline, selectedIndex, 1);
+                    activeSpline = component.GetSpline(newPoint);
+                    selectedIndex = component.GetIndex(activeSpline, newPoint);
+                    selectedHandle = 0;
+                    SceneView.RepaintAll();
                 }
+                GUILayout.EndHorizontal();
+            }
 
+            EditorGUILayout.Space();
+            GUILayout.Label("Anchor:");
+            EditorGUI.indentLevel++;
+
+            EditorGUI.BeginChangeCheck();
+            Vector3 anchor = EditorGUILayout.Vector3Field("Position", component.GetPoint(activeSpline, selectedIndex));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Move Anchor");
+                EditorUtility.SetDirty(component);
+                component.SetAnchorPosition(activeSpline, selectedIndex, anchor);
+            }
+
+            EditorGUI.BeginChangeCheck();
+            Vector3 rotation = EditorGUILayout.Vector3Field("Rotation", component.GetEulerAngles(activeSpline, selectedIndex));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Rotate Anchor");
+                EditorUtility.SetDirty(component);
+                component.SetRotation(activeSpline, selectedIndex, Quaternion.Euler(rotation));
+            }
+
+            EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
+            GUILayout.Label("Handles:");
+            EditorGUI.indentLevel++;
+
+            EditorGUI.BeginChangeCheck();
+            BezierControlPointMode mode = (BezierControlPointMode)EditorGUILayout.EnumPopup("Mode", component.GetMode(activeSpline, selectedIndex));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Change Point Mode");
+                component.SetMode(activeSpline, selectedIndex, mode);
+                EditorUtility.SetDirty(component);
+            }
+
+            EditorGUI.BeginChangeCheck();
+            float handle_0 = EditorGUILayout.FloatField(mode == BezierControlPointMode.Mirrored ? "Scale" : "Scale (Back)",
+                component.GetHandleMagnitude(activeSpline, selectedIndex, 0));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Move handle");
+                EditorUtility.SetDirty(component);
+                component.SetHandleMagnitude(activeSpline, selectedIndex, 0, handle_0);
+            }
+
+            if (mode == BezierControlPointMode.Aligned) {
                 EditorGUI.BeginChangeCheck();
-                Vector3 rotation = EditorGUILayout.Vector3Field("Rotation", component.GetEulerAngles(activeSpline, selectedIndex[0]));
-                if (EditorGUI.EndChangeCheck()) {
-                    Undo.RecordObject(component, "Move Anchor");
-                    EditorUtility.SetDirty(component);
-                    component.SetRotation(activeSpline, selectedIndex[0], Quaternion.Euler(rotation));
-                }
-
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-                GUILayout.Label("Handles:");
-                EditorGUI.indentLevel++;
-
-                EditorGUI.BeginChangeCheck();
-                BezierControlPointMode mode = (BezierControlPointMode)EditorGUILayout.EnumPopup("Mode", component.GetMode(activeSpline, selectedIndex[0]));
-                if (EditorGUI.EndChangeCheck()) {
-                    Undo.RecordObject(component, "Change Point Mode");
-                    component.SetMode(activeSpline, selectedIndex[0], mode);
-                    EditorUtility.SetDirty(component);
-                }
-
-                EditorGUI.BeginChangeCheck();
-                float handle_0 = EditorGUILayout.FloatField(mode == BezierControlPointMode.Mirrored ? "Velocity" : "Velocity(Back)",
-                    component.GetHandleMagnitude(activeSpline, selectedIndex[0], 0));
+                float handle_1 = EditorGUILayout.FloatField("Scale (Forward)",
+                    component.GetHandleMagnitude(activeSpline, selectedIndex, 1));
                 if (EditorGUI.EndChangeCheck()) {
                     Undo.RecordObject(component, "Move handle");
                     EditorUtility.SetDirty(component);
-                    component.SetHandleMagnitude(activeSpline, selectedIndex[0], 0, handle_0);
+                    component.SetHandleMagnitude(activeSpline, selectedIndex, 1, handle_1);
                 }
-
-                if (mode == BezierControlPointMode.Aligned) {
-                    EditorGUI.BeginChangeCheck();
-                    float handle_1 = EditorGUILayout.FloatField("Velocity (Forward)",
-                        component.GetHandleMagnitude(activeSpline, selectedIndex[0], 1));
-                    if (EditorGUI.EndChangeCheck()) {
-                        Undo.RecordObject(component, "Move handle");
-                        EditorUtility.SetDirty(component);
-                        component.SetHandleMagnitude(activeSpline, selectedIndex[0], 1, handle_1);
-                    }
-                }
-
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-
-                Texture before = Resources.Load<Texture>("AddPoint_MB");
-                Texture after = Resources.Load<Texture>("AddPoint_MA");
-                Texture remove = Resources.Load<Texture>("AddPoint_MR");
-                if (selectedIndex[0] == 0) {
-                    before = Resources.Load<Texture>("AddPoint_SB");
-                    after = Resources.Load<Texture>("AddPoint_SA");
-                    remove = Resources.Load<Texture>("AddPoint_SR");
-                }
-                else if (selectedIndex[0] == component.PointCount(activeSpline) - 1) {
-                    before = Resources.Load<Texture>("AddPoint_EB");
-                    after = Resources.Load<Texture>("AddPoint_EA");
-                    remove = Resources.Load<Texture>("AddPoint_ER");
-                }
-
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button(before, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
-                    Undo.RecordObject(component, "Add point before current");
-                    EditorUtility.SetDirty(component);
-                    component.InsertControlPoint(activeSpline, selectedIndex[0]);
-                }
-                if (GUILayout.Button(after, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
-                    Undo.RecordObject(component, "Add point after current");
-                    EditorUtility.SetDirty(component);
-                    if (selectedIndex[0] == component.PointCount(activeSpline) - 1)
-                        component.AddControlPoint(activeSpline);
-                    else
-                        component.InsertControlPoint(activeSpline, selectedIndex[0] + 1);
-                    selectedIndex[0]++;
-                }
-                GUILayout.EndHorizontal();
-
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button(remove, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
-                    Undo.RecordObject(component, "Remove point");
-                    component.RemovePoint(activeSpline, selectedIndex[0]);
-                    activeSpline = -1;
-                    selectedIndex = new int[] { -1, 0 };
-                    EditorUtility.SetDirty(component);
-                }
-                if (GUILayout.Button(Resources.Load<Texture>("AddPoint_NS"), GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
-                    Undo.RecordObject(component, "Start new curve");
-                    component.AddSpline(activeSpline, selectedIndex[0]);
-                    activeSpline = component.splineCount - 1;
-                    selectedIndex = new int[] { 1, 0 };
-                    EditorUtility.SetDirty(component);
-                }
-                GUILayout.EndHorizontal();
-                EditorGUILayout.Space();
             }
+
+            EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
+
+            Texture before = Resources.Load<Texture>("AddPoint_MB");
+            Texture after = Resources.Load<Texture>("AddPoint_MA");
+            Texture remove = Resources.Load<Texture>("AddPoint_MR");
+            if (selectedIndex == 0) {
+                before = Resources.Load<Texture>("AddPoint_SB");
+                after = Resources.Load<Texture>("AddPoint_SA");
+                remove = Resources.Load<Texture>("AddPoint_SR");
+            }
+            else if (selectedIndex == component.PointCount(activeSpline) - 1) {
+                before = Resources.Load<Texture>("AddPoint_EB");
+                after = Resources.Load<Texture>("AddPoint_EA");
+                remove = Resources.Load<Texture>("AddPoint_ER");
+            }
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(before, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
+                Undo.RecordObject(component, "Add point before current");
+                EditorUtility.SetDirty(component);
+                component.InsertControlPoint(activeSpline, selectedIndex);
+            }
+            if (GUILayout.Button(after, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
+                Undo.RecordObject(component, "Add point after current");
+                EditorUtility.SetDirty(component);
+                if (selectedIndex == component.PointCount(activeSpline) - 1)
+                    component.AddControlPoint(activeSpline);
+                else
+                    component.InsertControlPoint(activeSpline, selectedIndex + 1);
+                selectedIndex++;
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(remove, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
+                Undo.RecordObject(component, "Remove point");
+                component.RemovePoint(activeSpline, selectedIndex);
+                activeSpline = -1;
+                selectedIndex = -1;
+                selectedHandle = 0;
+                EditorUtility.SetDirty(component);
+            }
+            if (GUILayout.Button(Resources.Load<Texture>("AddPoint_NS"), GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
+                Undo.RecordObject(component, "Start new curve");
+                component.AddSpline(activeSpline, selectedIndex);
+                activeSpline = component.splineCount - 1;
+                selectedIndex = -1;
+                selectedHandle = 0;
+                EditorUtility.SetDirty(component);
+            }
+            GUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+        }
+    }
+
+    public void DrawJunctionInspector() {
+        if (selectedIndex >= 0) {
+            GUILayout.Label("Anchor:");
+            EditorGUI.indentLevel++;
+
+            EditorGUI.BeginChangeCheck();
+            Vector3 anchor = EditorGUILayout.Vector3Field("Position", component.GetPoint(activeSpline, selectedIndex));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Move Anchor");
+                EditorUtility.SetDirty(component);
+                component.SetAnchorPosition(activeSpline, selectedIndex, anchor);
+            }
+
+            EditorGUI.BeginChangeCheck();
+            Vector3 rotation = EditorGUILayout.Vector3Field("Rotation", component.GetEulerAngles(activeSpline, selectedIndex));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Move Anchor");
+                EditorUtility.SetDirty(component);
+                component.RotateConnection(activeSpline, selectedIndex, Quaternion.Euler(rotation));
+            }
+
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUI.BeginChangeCheck();
+            JunctionMode mode = (JunctionMode)EditorGUILayout.EnumPopup("Mode", component.GetConnectionMode(activeSpline, selectedIndex));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Change Point Mode");
+                component.SetConnectionMode(activeSpline, selectedIndex, mode);
+                EditorUtility.SetDirty(component);
+            }
+            EditorGUI.EndDisabledGroup();
         }
     }
 }
