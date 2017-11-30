@@ -120,13 +120,4 @@ public class ControlPoint {
 
         return euler;
     }
-
-    public float GetHandleScale () {
-        return handles[1].magnitude;
-    }
-
-    public void SetHandleScale (float scale) {
-        handles[0] = handles[0].normalized * scale;
-        handles[1] = handles[1].normalized * scale;
-    }
 }

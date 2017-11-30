@@ -6,13 +6,15 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
-    public List<Spline> splines;
-    public List<ControlPoint> connectedPoints;
+    [SerializeField]
+    private List<Spline> splines;
+    [SerializeField]
+    private List<ControlPoint> connectedPoints;
     private new Transform transform;
 
     public void Reset() {
         splines = new List<Spline> {
-            new Spline(Vector3.forward, transform)
+            new Spline(Vector3.forward)
         };
         connectedPoints = new List<ControlPoint> { };
     }
@@ -21,8 +23,159 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         transform = gameObject.transform;
     }
 
-    public void AddSpline (ControlPoint point) {
-        splines.Add(new Spline(point.GetAnchorPosition(), transform));
+    public Vector3 GetPoint (int spline, int point) {
+        return transform.TransformPoint(splines[spline].points[point].GetAnchorPosition());
+    }
+
+    public Vector3 GetPoint (int spline, float t) {
+        return transform.TransformPoint(splines[spline].GetPoint(t));
+    }
+
+    public Vector3 GetDirection (int spline, float t) {
+        return transform.TransformDirection(splines[spline].GetDirection(t));
+    }
+
+    public Vector3 GetUp (int spline, float t) {
+        return transform.TransformDirection(splines[spline].GetUp(t));
+    }
+
+    public int GetSpline (ControlPoint point) {
+        for (int i = 0; i < splines.Count; i++) {
+            if (splines[i].points.Contains(point)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int GetIndex (int spline, ControlPoint point) {
+        return splines[spline].points.IndexOf(point);
+    }
+
+    public int splineCount {
+        get {
+            return splines.Count;
+        }
+    }
+
+    public int PointCount (int spline) {
+        return splines[spline].points.Count;
+    }
+
+    public Quaternion GetRotation (int spline, int point) {
+        return transform.rotation * splines[spline].points[point].GetRotation();
+    }
+
+    public Vector3 GetEulerAngles (int spline, int point) {
+        return transform.eulerAngles + splines[spline].points[point].GetEulerAngles();
+    }
+
+    public Vector3 GetHandle(int spline, int point, int index) {
+        return transform.TransformPoint(splines[spline].points[point].GetHandlePosition(index));
+    }
+
+    public float GetHandleMagnitude(int spline, int point, int index) {
+        return splines[spline].points[point].GetHandleMagnitude(index);
+    }
+
+    public BezierControlPointMode GetMode (int spline, int point) {
+        return splines[spline].points[point].GetMode();
+    }
+
+    public int GetConnectedIndex (int spline, int point) {
+        return splines[spline].points[point].connectedIndex;
+    }
+
+    //Get a control point connected to point. If there is none it returns point.
+    public ControlPoint GetConnectedPoint(int spline, int point, int offset) {
+        int index = connectedPoints.IndexOf(splines[spline].points[point]);
+        int newIndex = index + offset;
+        if (newIndex >= 0 && newIndex < connectedPoints.Count) {
+            if (connectedPoints[newIndex].connectedIndex == connectedPoints[index].connectedIndex) {
+                return connectedPoints[newIndex];
+            }
+        }
+        return connectedPoints[index];
+    }
+
+    public int GetConnectedPointCount (int connectedIndex) {
+        int i = connectedIndex;
+        int count = 0;
+        while (connectedPoints.Count > i && connectedPoints[i].connectedIndex == connectedIndex) {
+            i++;
+            count++;
+        }
+        return count;
+    }
+
+    public int GetConnectedPointIndex (int spline, int point) {
+        return connectedPoints.IndexOf(splines[spline].points[point]) - splines[spline].points[point].connectedIndex;
+    }
+
+    //This function should be used instead directly in the control point to be able to move connected points
+    public void SetAnchorPosition (int spline, int index, Vector3 position) {
+        ControlPoint point = splines[spline].points[index];
+        position = transform.InverseTransformPoint(position);
+        if (point.connectedIndex >= 0) {
+            for (int i = 0; i < connectedPoints.Count; i++) {
+                if (connectedPoints[i].connectedIndex == point.connectedIndex)
+                    connectedPoints[i].SetAnchorPosition(position);
+            }
+        }
+        else {
+            point.SetAnchorPosition(position);
+        }
+    }
+
+    public void SetHandleMagnitude (int spline, int point, int index, float magnitude) {
+        splines[spline].points[point].SetHandleMagnitude(index, magnitude);
+    }
+
+    public void SetHandlePosition (int spline, int point, int index, Vector3 position) {
+        position = transform.InverseTransformPoint(position);
+        splines[spline].points[point].SetHandlePosition(index, position);
+    }
+
+    public void SetMode(int spline, int point, BezierControlPointMode mode) {
+        splines[spline].points[point].SetMode(mode);
+    }
+
+    public void SetRotation (int spline, int point, Quaternion rotation) {
+        splines[spline].points[point].SetRotation(Quaternion.Inverse(transform.rotation) * rotation);
+    }
+
+    public void InsertControlPoint (int spline, int index) {
+        splines[spline].InsertControlPoint(index);
+    }
+
+    public void AddControlPoint (int spline) {
+        splines[spline].AddControlPoint();
+    }
+
+    // Adds both points to the connected points list (if they aren't already) and gives them the same connectedIndex
+    public void ConnectPoints(ControlPoint first, ControlPoint second) {
+        if (first.connectedIndex >= 0 && second.connectedIndex >= 0) {
+            Debug.LogWarning("Can't connect two junctions!");
+        }
+        else if (first.connectedIndex >= 0) {
+            connectedPoints.Insert(first.connectedIndex, second);
+            second.connectedIndex = first.connectedIndex;
+        }
+        else if(second.connectedIndex >= 0) {
+            connectedPoints.Insert(second.connectedIndex, first);
+            first.connectedIndex = second.connectedIndex;
+        }
+        else {
+            connectedPoints.Add(first);
+            connectedPoints.Add(second);
+            first.connectedIndex = connectedPoints.IndexOf(first);
+            second.connectedIndex = first.connectedIndex;
+        }
+    }
+
+    public void AddSpline(int spline, int index) {
+        ControlPoint point = splines[spline].points[index];
+        splines.Add(new Spline(point.GetAnchorPosition()));
         ConnectPoints(point, splines[splines.Count - 1].points[0]);
     }
 
@@ -56,70 +209,6 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
-    // Adds both points to the connected points list (if they aren't already) and gives them the same connectedIndex
-    public void ConnectPoints (ControlPoint first, ControlPoint second) {
-        if (first.connectedIndex < 0) {
-            connectedPoints.Add(first);
-            first.connectedIndex = connectedPoints.IndexOf(first);
-        }
-
-        if (second.connectedIndex < 0) {
-            connectedPoints.Add(second);
-            second.connectedIndex = connectedPoints.IndexOf(second);
-        }
-
-        int newIndex = Mathf.Min(first.connectedIndex, second.connectedIndex);
-        for (int i = 0; i < connectedPoints.Count; i++) {
-            if (connectedPoints[i].connectedIndex == first.connectedIndex || connectedPoints[i].connectedIndex == second.connectedIndex) {
-                connectedPoints[i].connectedIndex = newIndex;
-            }
-        }
-    }
-
-    //This function should be used instead directly in the control point to be able to move connected points
-    public void SetPointAnchorPosition (ControlPoint point, Vector3 position) {
-        if (point.connectedIndex >= 0) {
-            for (int i = 0; i < connectedPoints.Count; i++) {
-                if (connectedPoints[i].connectedIndex == point.connectedIndex)
-                    connectedPoints[i].SetAnchorPosition(position);
-            }
-        } else {
-            point.SetAnchorPosition(position);
-        }
-    }
-
-    //Get a control point connected to point. If there is none it returns point.
-    public ControlPoint GetConnectedPoint (ControlPoint point, int offset) {
-        int start = connectedPoints.IndexOf(point);
-        for (int i = start + offset; i < connectedPoints.Count && i >= 0; i += offset) {
-            if (connectedPoints[i].connectedIndex == point.connectedIndex) {
-                return connectedPoints[i];
-            }
-        }
-        return point;
-    }
-
-    public Vector3 GetPoint (int spline, float t) {
-        return transform.TransformPoint(splines[spline].GetPoint(t));
-    }
-
-    public Vector3 GetDirection (int spline, float t) {
-        return transform.TransformPoint(splines[spline].GetDirection(t));
-    }
-
-    public Vector3 GetUp (int spline, float t) {
-        return transform.TransformPoint(splines[spline].GetUp(t));
-    }
-
-    public int GetSpline (ControlPoint point) {
-        for (int i = 0; i < splines.Count; i++) {
-            if (splines[i].points.Contains(point)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     public void OnBeforeSerialize() {
     }
 
@@ -134,10 +223,4 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
         connectedPoints.Sort(delegate (ControlPoint a, ControlPoint b) { return a.connectedIndex.CompareTo(b.connectedIndex); });
     }
-
-    /*public void OnDrawGizmos() {
-        for (int i = 0; i < splines.Count; i++) {
-            splines[i].Draw(transform);
-        }
-    }*/
 }

@@ -7,9 +7,8 @@ using System;
 public class Spline {
 
     public List<ControlPoint> points;
-    //private static int lineSteps = 20;
 
-    public Spline(Vector3 position, Transform newComponent) {
+    public Spline(Vector3 position) {
         points = new List<ControlPoint> {
             new ControlPoint(position, Vector3.forward),
             new ControlPoint(position + Vector3.forward, Vector3.forward)
@@ -80,14 +79,4 @@ public class Spline {
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
         return Vector3.ProjectOnPlane(rotation * Vector3.up, direction);
     }
-
-    /*public void Draw () {
-        Vector3 lineStart = GetPoint(component, 0f);
-        Gizmos.color = Color.cyan;
-        for (int i = 1; i < lineSteps * (points.Count - 1) + 1; i++) {
-            Vector3 lineEnd = GetPoint(component, i / (float)lineSteps);
-            Gizmos.DrawLine(lineStart, lineEnd);
-            lineStart = lineEnd;
-        }
-    }*/
 }
