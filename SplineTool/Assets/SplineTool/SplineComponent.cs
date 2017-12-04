@@ -39,6 +39,10 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return transform.TransformDirection(splines[spline].GetUp(t));
     }
 
+    public float GetArcLength(int spline) {
+        return splines[spline].GetArcLength();
+    }
+
     public int GetSpline (ControlPoint point) {
         for (int i = 0; i < splines.Count; i++) {
             if (splines[i].points.Contains(point)) {
@@ -80,10 +84,6 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public BezierControlPointMode GetMode (int spline, int point) {
         return splines[spline].points[point].GetMode();
-    }
-
-    public JunctionMode GetConnectionMode (int spline, int point) {
-        return splines[spline].points[point].GetConnectionMode();
     }
 
     public int GetConnectedIndex (int spline, int point) {
@@ -134,64 +134,37 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             for (int i = 0; i < connectedPoints.Count; i++) {
                 if (connectedPoints[i].connectedIndex == point.connectedIndex)
                     connectedPoints[i].SetAnchorPosition(position);
+                Debug.Log("QQQ");
+                foreach (Spline s in splines) {
+                    s.ResetArcLengthTable();
+                }
             }
         }
         else {
             point.SetAnchorPosition(position);
+            splines[spline].ResetArcLengthTable();
         }
     }
 
     public void SetHandleMagnitude (int spline, int point, int index, float magnitude) {
         splines[spline].points[point].SetHandleMagnitude(index, magnitude);
+        splines[spline].ResetArcLengthTable();
     }
 
     public void SetHandlePosition (int spline, int point, int index, Vector3 position) {
         ControlPoint controlPoint = splines[spline].points[point];
         position = transform.InverseTransformPoint(position);
         controlPoint.SetHandlePosition(index, position);
-        if (controlPoint.connectedIndex >= 0 && controlPoint.GetConnectionMode() != JunctionMode.Free) {
-            RotateLockedConnection(controlPoint);
-        }
-    }
-
-    private void RotateLockedConnection (ControlPoint point) {
-        Vector3 normal = Vector3.up;
-        if (point.GetConnectionMode() == JunctionMode.LockX) {
-            normal = Vector3.right;
-        }
-        Vector3 euler = point.GetEulerAngles();
-        euler.Scale(new Vector3(1, 1, -1));
-        normal = Quaternion.Euler(euler) * normal;
-        normal.Normalize();
-        for (int i = 0; i < connectedPointCount; i++) {
-            if (connectedPoints[i].connectedIndex == point.connectedIndex && connectedPoints[i] != point) {
-                Vector3 position = Vector3.ProjectOnPlane(connectedPoints[i].GetHandlePosition(0), normal);
-                position = position.normalized;// * connectedPoints[i].GetHandleMagnitude(0);
-                connectedPoints[i].SetHandlePosition(0, position);
-            }
-        }
+        splines[spline].ResetArcLengthTable();
     }
 
     public void SetMode (int spline, int point, BezierControlPointMode mode) {
         splines[spline].points[point].SetMode(mode);
     }
 
-    public void SetConnectionMode(int spline, int point, JunctionMode mode) {
-        int index = splines[spline].points[point].connectedIndex;
-        for (int i = 0; i < connectedPointCount; i++) {
-            if (connectedPoints[i].connectedIndex == index) {
-                connectedPoints[i].SetConnectionMode(mode);
-            }
-        }
-        RotateLockedConnection(splines[spline].points[point]);
-    }
-
     public void SetRotation (int spline, int point, Quaternion rotation) {
         ControlPoint controlPoint = splines[spline].points[point];
         controlPoint.SetRotation(Quaternion.Inverse(transform.rotation) * rotation);
-        if (controlPoint.connectedIndex >= 0 && controlPoint.GetConnectionMode() != JunctionMode.Free) {
-            RotateLockedConnection(controlPoint);
-        }
     }
 
     public void RotateConnection (int spline, int point, Quaternion newRotation) {
@@ -202,6 +175,30 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                 Quaternion rotation = connectedPoints[i].GetRotation();
                 connectedPoints[i].SetRotation(Quaternion.Inverse(transform.rotation) * newRotation * resetRotation * rotation);
             }
+        }
+
+        Debug.Log("QQQ");
+        foreach (Spline s in splines) {
+            s.ResetArcLengthTable();
+        }
+    }
+
+    public void ScaleConnection (int spline, int point, Vector3 scale) {
+        for (int i = 0; i < 3; i++) {
+            if (scale[i] < 0f) {
+                scale[i] = 0f;
+            }
+        }
+        int index = GetConnectedIndex(spline, point);
+        for(int i = 0; i < connectedPoints.Count; i++) {
+            if (connectedPoints[i].connectedIndex == index) {
+                connectedPoints[i].Scale(scale);
+            }
+        }
+
+        Debug.Log("QQQ");
+        foreach (Spline s in splines) {
+            s.ResetArcLengthTable();
         }
     }
 
@@ -260,7 +257,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                     connectedPoints.Remove(lastPoint);
                 }
             }
-            splines[spline].points.Remove(point);
+            splines[spline].RemoveControlPoint(point);
         }
         if (splines[spline].points.Count == 1) {
             RemovePoint(spline, 0);
@@ -274,8 +271,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     }
 
     public void OnAfterDeserialize() {
+        for (int i = 0; i < splineCount; i++) {
+            splines[i].ResetArcLengthTable();
+        }
+
         connectedPoints = new List<ControlPoint>();
-        for (int i = 0; i < splines.Count; i++) {
+        for (int i = 0; i < splineCount; i++) {
             for (int j = 0; j < splines[i].points.Count; j++) {
                 if (splines[i].points[j].connectedIndex >= 0) {
                     connectedPoints.Add(splines[i].points[j]);

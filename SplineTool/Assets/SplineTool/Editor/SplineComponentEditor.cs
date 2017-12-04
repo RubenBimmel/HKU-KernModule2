@@ -22,7 +22,7 @@ public class SplineComponentEditor : Editor {
     private int selectedHandle = 0;
     private int activeSpline = -1;
 
-    private static int lineSteps = 10;
+    private static float stepSize = .2f;
     private const float finSize = .03f;
 
     // Draw splines and handles
@@ -190,31 +190,46 @@ public class SplineComponentEditor : Editor {
 
     // Draw scale handle
     private void ScaleHandle(int index, Vector3 position) {
-        EditorGUI.BeginChangeCheck();
-        Quaternion rotation = component.GetRotation(activeSpline, index);
-        float scale = component.GetHandleMagnitude(activeSpline, index, 1);
-        Handles.color = new Color(.4f, .4f, .8f);
-        scale = Handles.ScaleSlider(scale, position, rotation * Vector3.forward, rotation, HandleUtility.GetHandleSize(position), 0f);
-        if (EditorGUI.EndChangeCheck()) {
-            Undo.RecordObject(component, "Scale Point");
-            EditorUtility.SetDirty(component);
-            float scale2 = scale / component.GetHandleMagnitude(activeSpline, index, 1) * component.GetHandleMagnitude(activeSpline, index, 0);
-            component.SetHandleMagnitude(activeSpline, index, 1, scale);
-            component.SetHandleMagnitude(activeSpline, index, 0, scale2);
+        if (tool == 0) {
+            EditorGUI.BeginChangeCheck();
+            Quaternion rotation = component.GetRotation(activeSpline, index);
+            float scale = component.GetHandleMagnitude(activeSpline, index, 1);
+            Handles.color = new Color(.4f, .4f, .8f);
+            scale = Handles.ScaleSlider(scale, position, rotation * Vector3.forward, rotation, HandleUtility.GetHandleSize(position), 0f);
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Scale Point");
+                EditorUtility.SetDirty(component);
+                float scale2 = scale / component.GetHandleMagnitude(activeSpline, index, 1) * component.GetHandleMagnitude(activeSpline, index, 0);
+                component.SetHandleMagnitude(activeSpline, index, 1, scale);
+                component.SetHandleMagnitude(activeSpline, index, 0, scale2);
+            }
+        }
+        else {
+            EditorGUI.BeginChangeCheck();
+            Quaternion rotation = Quaternion.identity;
+            float scale = component.GetHandleMagnitude(activeSpline, index, 1);
+            Vector3 scale3D = scale * Vector3.one;
+            Handles.color = new Color(.4f, .4f, .8f);
+            scale3D = Handles.ScaleHandle(scale3D, position, rotation, HandleUtility.GetHandleSize(position));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Scale Point");
+                EditorUtility.SetDirty(component);
+                component.ScaleConnection(activeSpline, index, scale3D / scale);
+            }
         }
     }
 
     private void ShowAngles(int spline) {
         Vector3 lineStart = component.GetPoint(spline, 0f);
         Gizmos.color = Color.cyan;
-        for (int i = 1; i < lineSteps * (component.PointCount(spline) - 1) + 1; i++) {
-            Vector3 lineEnd = component.GetPoint(spline, i / (float)lineSteps);
+        for (float i = stepSize; i <= component.GetArcLength(spline); i += stepSize) {
+            Vector3 lineEnd = component.GetPoint(spline, i);
             Handles.color = new Color(.2f, 1, .2f);
-            Vector3 up = component.GetUp(spline, (i - 1) / (float)lineSteps);
+            Vector3 up = component.GetUp(spline, i - stepSize);
             Handles.DrawLine(lineStart + finSize * up, lineEnd);
             Handles.DrawLine(lineStart, lineStart + finSize * up);
             Handles.color = new Color(1, .2f, .2f);
-            Vector3 forward = component.GetDirection(spline, (i - 1) / (float)lineSteps);
+            Vector3 forward = component.GetDirection(spline, i - stepSize);
             Vector3 right = Vector3.Cross(up, forward).normalized;
             Handles.DrawLine(lineStart + finSize * right, lineEnd);
             Handles.DrawLine(lineStart, lineStart + finSize * right);
@@ -404,15 +419,23 @@ public class SplineComponentEditor : Editor {
                 component.RotateConnection(activeSpline, selectedIndex, Quaternion.Euler(rotation));
             }
 
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUI.BeginChangeCheck();
-            JunctionMode mode = (JunctionMode)EditorGUILayout.EnumPopup("Mode", component.GetConnectionMode(activeSpline, selectedIndex));
-            if (EditorGUI.EndChangeCheck()) {
-                Undo.RecordObject(component, "Change Point Mode");
-                component.SetConnectionMode(activeSpline, selectedIndex, mode);
-                EditorUtility.SetDirty(component);
+            EditorGUILayout.Space();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Flatten X")) {
+                component.ScaleConnection(activeSpline, selectedIndex, new Vector3(0, 1, 1));
+                SceneView.RepaintAll();
             }
-            EditorGUI.EndDisabledGroup();
+            if (GUILayout.Button("Flatten Y")) {
+                component.ScaleConnection(activeSpline, selectedIndex, new Vector3(1, 0, 1));
+                SceneView.RepaintAll();
+            }
+            if (GUILayout.Button("Flatten Z")) {
+                component.ScaleConnection(activeSpline, selectedIndex, new Vector3(1, 1, 0));
+                SceneView.RepaintAll();
+            }
+            GUILayout.EndHorizontal();
+            EditorGUI.indentLevel--;
         }
     }
 }

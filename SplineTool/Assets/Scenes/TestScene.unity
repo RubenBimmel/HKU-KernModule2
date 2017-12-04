@@ -228,230 +228,64 @@ MonoBehaviour:
       up: {x: 0, y: 1, z: 0}
       mode: 1
       connectedIndex: -1
-      connectionMode: 0
-    - anchor: {x: 0.41525555, y: -0.06, z: 2}
+    - anchor: {x: 0, y: 0, z: 2}
       handles:
-      - {x: 0.029601749, y: 0, z: -0.4991209}
-      - {x: -0.029601749, y: 0, z: 0.4991209}
-      up: {x: 0, y: 1, z: 0}
+      - {x: 0.0029738043, y: -0, z: -0.6079675}
+      - {x: -0.0029738043, y: 0, z: 0.6079675}
+      up: {x: -0.009334229, y: 0.9377425, z: -0.34720597}
       mode: 1
       connectedIndex: 0
-      connectionMode: 0
-    - anchor: {x: 0, y: 0, z: 3}
+    - anchor: {x: 1.0484785, y: 0.09926629, z: 2.8829374}
+      handles:
+      - {x: -0.7540778, y: 0, z: 0.17773128}
+      - {x: 0.7540778, y: -0, z: -0.17773128}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    - anchor: {x: 2.1158834, y: 0.09926629, z: 2.6313574}
+      handles:
+      - {x: -0.24333264, y: -0, z: 0.05735185}
+      - {x: 0.24333264, y: 0, z: -0.05735185}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+  - points:
+    - anchor: {x: 0, y: 0, z: 2}
+      handles:
+      - {x: 0.41029325, y: -0.000000006114827, z: -0.007349927}
+      - {x: -0.41029325, y: 0.000000006114827, z: 0.007349927}
+      up: {x: 0.0046188533, y: 0.96617764, z: 0.2578361}
+      mode: 1
+      connectedIndex: 0
+    - anchor: {x: -0.7033278, y: 0, z: 2.7687056}
+      handles:
+      - {x: -0, y: -0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    - anchor: {x: -0.7033278, y: 0, z: 3.7687056}
       handles:
       - {x: -0, y: -0, z: -0.25}
       - {x: 0, y: 0, z: 0.25}
       up: {x: 0, y: 1, z: 0}
       mode: 1
-      connectedIndex: 7
-      connectionMode: 0
-    - anchor: {x: 0, y: 0, z: 4}
-      handles:
-      - {x: -0, y: -0, z: -0.25}
-      - {x: 0, y: 0, z: 0.25}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
       connectedIndex: -1
-      connectionMode: 0
-  - points:
-    - anchor: {x: -1.4057252, y: 0, z: 1.6100093}
-      handles:
-      - {x: -0.5997543, y: 0, z: 0.017171642}
-      - {x: 0.47980338, y: -0, z: -0.013737315}
-      up: {x: 0, y: 1, z: 0}
-      mode: 0
-      connectedIndex: -1
-      connectionMode: 0
-    - anchor: {x: 0.41525555, y: -0.06, z: 2}
-      handles:
-      - {x: -0.48463815, y: 0, z: -0.12300597}
-      - {x: 0.48463815, y: 0, z: 0.12300597}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: 0
-      connectionMode: 0
-    - anchor: {x: 1.0895662, y: 0, z: 3}
-      handles:
-      - {x: -0.0297724, y: 0.08035288, z: -0.3497429}
-      - {x: 0.0297724, y: -0.08035288, z: 0.3497429}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: 4
-      connectionMode: 0
-    - anchor: {x: 1.2216878, y: 0, z: 3.9912336}
-      handles:
-      - {x: -0.03303039, y: 0, z: -0.24780838}
-      - {x: 0.03303039, y: -0, z: 0.24780838}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-      connectionMode: 0
-  - points:
-    - anchor: {x: 0.41525555, y: -0.06, z: 2}
-      handles:
-      - {x: 0.029601749, y: 0, z: -0.4991209}
-      - {x: -0.029601749, y: 0, z: 0.4991209}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: 0
-      connectionMode: 0
-    - anchor: {x: 0.65045285, y: 0, z: 2.99101}
-      handles:
-      - {x: -0, y: -0, z: -0.5}
-      - {x: 0, y: 0, z: 0.5}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-      connectionMode: 0
-  - points:
-    - anchor: {x: 0.41525555, y: -0.06, z: 2}
-      handles:
-      - {x: -0.07019121, y: 0, z: -0.49504718}
-      - {x: 0.07019121, y: 0, z: 0.49504718}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: 0
-      connectionMode: 0
-    - anchor: {x: 0.41452956, y: 0, z: 3}
-      handles:
-      - {x: -0, y: -0, z: -0.5}
-      - {x: 0, y: 0, z: 0.5}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-      connectionMode: 0
-  - points:
-    - anchor: {x: 1.0895662, y: 0, z: 3}
-      handles:
-      - {x: 0.439292, y: 0.006582275, z: -0.15624475}
-      - {x: -0.439292, y: -0.006582275, z: 0.15624475}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: 4
-      connectionMode: 0
-    - anchor: {x: 1.0895662, y: 0, z: 4}
-      handles:
-      - {x: -0.38071528, y: 0, z: -0.3241228}
-      - {x: 0.38071528, y: 0, z: 0.3241228}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-      connectionMode: 0
-  - points:
-    - anchor: {x: 1.0895662, y: 0, z: 3}
-      handles:
-      - {x: -0.51391125, y: 0.020554548, z: -0.019385463}
-      - {x: 0.51391125, y: -0.020554548, z: 0.019385463}
-      up: {x: 0.03952531, y: 0.9991514, z: 0.011586074}
-      mode: 1
-      connectedIndex: 4
-      connectionMode: 0
-    - anchor: {x: 1.5488011, y: 0, z: 3.875413}
-      handles:
-      - {x: -0, y: -0, z: -0.5}
-      - {x: 0, y: 0, z: 0.5}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-      connectionMode: 0
-  - points:
-    - anchor: {x: 0, y: 0, z: 3}
-      handles:
-      - {x: -0, y: -0, z: -0.5}
-      - {x: 0, y: 0, z: 0.25}
-      up: {x: 0, y: 1, z: 0}
-      mode: 0
-      connectedIndex: 7
-      connectionMode: 0
-    - anchor: {x: 0.2290752, y: 0, z: 3.5}
-      handles:
-      - {x: -0.0859032, y: -0, z: -0.09375}
-      - {x: 0.0859032, y: 0, z: 0.09375}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-      connectionMode: 0
-    - anchor: {x: 0.4581504, y: 0, z: 4}
-      handles:
-      - {x: -0, y: -0, z: -0.25}
-      - {x: 0, y: 0, z: 0.5}
-      up: {x: 0, y: 1, z: 0}
-      mode: 0
-      connectedIndex: -1
-      connectionMode: 0
   connectedPoints:
-  - anchor: {x: 0.41525555, y: -0.06, z: 2}
+  - anchor: {x: 0, y: 0, z: 2}
     handles:
-    - {x: 0.029601749, y: 0, z: -0.4991209}
-    - {x: -0.029601749, y: 0, z: 0.4991209}
-    up: {x: 0, y: 1, z: 0}
+    - {x: 0.41029325, y: -0.000000006114827, z: -0.007349927}
+    - {x: -0.41029325, y: 0.000000006114827, z: 0.007349927}
+    up: {x: 0.0046188533, y: 0.96617764, z: 0.2578361}
     mode: 1
     connectedIndex: 0
-    connectionMode: 0
-  - anchor: {x: 0.41525555, y: -0.06, z: 2}
+  - anchor: {x: 0, y: 0, z: 2}
     handles:
-    - {x: -0.07019121, y: 0, z: -0.49504718}
-    - {x: 0.07019121, y: 0, z: 0.49504718}
-    up: {x: 0, y: 1, z: 0}
+    - {x: 0.0029738043, y: -0, z: -0.6079675}
+    - {x: -0.0029738043, y: 0, z: 0.6079675}
+    up: {x: -0.009334229, y: 0.9377425, z: -0.34720597}
     mode: 1
     connectedIndex: 0
-    connectionMode: 0
-  - anchor: {x: 0.41525555, y: -0.06, z: 2}
-    handles:
-    - {x: -0.48463815, y: 0, z: -0.12300597}
-    - {x: 0.48463815, y: 0, z: 0.12300597}
-    up: {x: 0, y: 1, z: 0}
-    mode: 1
-    connectedIndex: 0
-    connectionMode: 0
-  - anchor: {x: 0.41525555, y: -0.06, z: 2}
-    handles:
-    - {x: 0.029601749, y: 0, z: -0.4991209}
-    - {x: -0.029601749, y: 0, z: 0.4991209}
-    up: {x: 0, y: 1, z: 0}
-    mode: 1
-    connectedIndex: 0
-    connectionMode: 0
-  - anchor: {x: 1.0895662, y: 0, z: 3}
-    handles:
-    - {x: 0.439292, y: 0.006582275, z: -0.15624475}
-    - {x: -0.439292, y: -0.006582275, z: 0.15624475}
-    up: {x: 0, y: 1, z: 0}
-    mode: 1
-    connectedIndex: 4
-    connectionMode: 0
-  - anchor: {x: 1.0895662, y: 0, z: 3}
-    handles:
-    - {x: -0.51391125, y: 0.020554548, z: -0.019385463}
-    - {x: 0.51391125, y: -0.020554548, z: 0.019385463}
-    up: {x: 0.03952531, y: 0.9991514, z: 0.011586074}
-    mode: 1
-    connectedIndex: 4
-    connectionMode: 0
-  - anchor: {x: 1.0895662, y: 0, z: 3}
-    handles:
-    - {x: -0.0297724, y: 0.08035288, z: -0.3497429}
-    - {x: 0.0297724, y: -0.08035288, z: 0.3497429}
-    up: {x: 0, y: 1, z: 0}
-    mode: 1
-    connectedIndex: 4
-    connectionMode: 0
-  - anchor: {x: 0, y: 0, z: 3}
-    handles:
-    - {x: -0, y: -0, z: -0.5}
-    - {x: 0, y: 0, z: 0.25}
-    up: {x: 0, y: 1, z: 0}
-    mode: 0
-    connectedIndex: 7
-    connectionMode: 0
-  - anchor: {x: 0, y: 0, z: 3}
-    handles:
-    - {x: -0, y: -0, z: -0.25}
-    - {x: 0, y: 0, z: 0.25}
-    up: {x: 0, y: 1, z: 0}
-    mode: 1
-    connectedIndex: 7
-    connectionMode: 0
 --- !u!4 &717536583
 Transform:
   m_ObjectHideFlags: 0

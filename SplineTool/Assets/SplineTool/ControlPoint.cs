@@ -10,12 +10,6 @@ public enum BezierControlPointMode {
     Mirrored
 }
 
-public enum JunctionMode {
-    Free,
-    LockY,
-    LockX
-}
-
 [Serializable]
 public class ControlPoint {
     [SerializeField]
@@ -27,8 +21,6 @@ public class ControlPoint {
     [SerializeField]
     private BezierControlPointMode mode;
     public int connectedIndex;
-    [SerializeField]
-    private JunctionMode connectionMode;
     //Constructor with position
     public ControlPoint(Vector3 position, Vector3 forward) {
         anchor = position;
@@ -64,10 +56,6 @@ public class ControlPoint {
         return mode;
     }
 
-    public JunctionMode GetConnectionMode() {
-        return connectionMode;
-    }
-
     //Set position
     public void SetAnchorPosition(Vector3 position) {
         anchor = position;
@@ -100,13 +88,14 @@ public class ControlPoint {
             handles[1 - index] = -handles[index];
     }
 
+    public void Scale (Vector3 scale) {
+        handles[0].Scale(scale);
+        handles[1].Scale(scale);
+    }
+
     public void SetMode (BezierControlPointMode newMode) {
         mode = newMode;
         SetRelativeHandlePosition(1, GetRelativeHandlePosition(1));
-    }
-
-    public void SetConnectionMode (JunctionMode newMode) {
-        connectionMode = newMode;
     }
 
     public Quaternion GetRotation () {
