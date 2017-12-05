@@ -336,7 +336,7 @@ public class SplineComponentEditor : Editor {
         }
     }
 
-    public void DrawEditInspector() {
+    private void DrawEditInspector() {
         if (selectedIndex >= 0) {
             if (component.GetConnectedIndex(activeSpline, selectedIndex) >= 0) {
                 GUILayout.BeginHorizontal();
@@ -469,7 +469,7 @@ public class SplineComponentEditor : Editor {
         }
     }
 
-    public void DrawJunctionInspector() {
+    private void DrawJunctionInspector() {
         if (selectedIndex >= 0) {
             GUILayout.Label("Anchor:");
             EditorGUI.indentLevel++;
@@ -517,7 +517,7 @@ public class SplineComponentEditor : Editor {
         }
     }
 
-    public void DrawSplineInspector() {
+    private void DrawSplineInspector() {
         if (activeSpline >= 0) {
             GUILayout.Label("Spline:");
             EditorGUI.indentLevel++;
