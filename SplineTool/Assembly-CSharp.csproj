@@ -53,6 +53,7 @@
   <ItemGroup>
      <Compile Include="Assets\SplineTool\Bezier.cs" />
      <Compile Include="Assets\SplineTool\ControlPoint.cs" />
+     <Compile Include="Assets\SplineTool\GeneratedMesh.cs" />
      <Compile Include="Assets\SplineTool\Spline.cs" />
      <Compile Include="Assets\SplineTool\SplineComponent.cs" />
      <Compile Include="Assets\SplineTool\SplineSettings.cs" />

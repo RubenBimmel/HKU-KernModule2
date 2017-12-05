@@ -252,6 +252,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public void SetSplineSettings(int index, SplineSettings settings) {
         splines[index].settings = settings;
+        UpdateSpline(index);
     }
 
     public void AddSpline(int spline, int index) {
@@ -346,6 +347,10 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             newTransform.hideFlags = HideFlags.NotEditable;
             generatedContent.Add(newTransform);
         }
+
+        for (int i = 0; i < splineCount; i++) {
+            UpdateSpline(i);
+        }
     }
 
     private void AddGeneratedBranch() {
@@ -364,6 +369,13 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     }
 
     private void ApplySettings (int index) {
+        ClearBranch(index);
+        GameObject newObject = new GameObject();
+        newObject.transform.parent = generatedContent[index];
+        MeshFilter filter = newObject.AddComponent<MeshFilter>();
+        filter.mesh = splines[index].settings.generated.generate(splines[index]);
+        MeshRenderer renderer = newObject.AddComponent<MeshRenderer>();
+        renderer.material = splines[index].settings.generated.material;
     }
 
     private void ClearBranch (int index) {
