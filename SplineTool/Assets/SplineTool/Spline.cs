@@ -7,17 +7,19 @@ using System;
 public class Spline {
 
     public List<ControlPoint> points;
-    private float timer;
+    public string name;
+    public SplineSettings settings;
 
     private float[] arcLengthTable;
     private static int tableSize = 100;
 
-    public Spline(Vector3 position) {
+    public Spline(Vector3 position, int index) {
         points = new List<ControlPoint> {
             new ControlPoint(position, Vector3.forward),
             new ControlPoint(position + Vector3.forward, Vector3.forward)
         };
         ResetArcLengthTable();
+        name = string.Concat("Spline_", index.ToString("D2"));
     }
 
     public void AddControlPoint () {
@@ -57,6 +59,7 @@ public class Spline {
         }
         return points.Count - 1;
     }
+
 
     public Vector3 GetPoint(float t) {
         t = GetArcPos(t);

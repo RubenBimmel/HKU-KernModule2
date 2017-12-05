@@ -6,7 +6,7 @@ using UnityEditor;
 
 [CustomEditor(typeof(SplineComponent))]
 public class SplineComponentEditor : Editor {
-    private SplineComponent component;
+    private static SplineComponent component;
     private Transform componentTransform;
     private Quaternion componentRotation;
     private Quaternion handleRotation;
@@ -22,8 +22,13 @@ public class SplineComponentEditor : Editor {
     private int selectedHandle = 0;
     private int activeSpline = -1;
 
-    private static float stepSize = .2f;
+    private const float stepSize = .2f;
     private const float finSize = .03f;
+
+    [MenuItem("CONTEXT/SplineComponent/Reset generated content")]
+    public static void ResetGeneratedContent () {
+        component.ResetGeneratedContent();
+    }
 
     // Draw splines and handles
     private void OnSceneGUI() {
@@ -43,8 +48,12 @@ public class SplineComponentEditor : Editor {
 
     private void DrawBeziers() {
         for (int i = 0; i < component.splineCount; i++) {
-            Color bezierColor = (i == activeSpline && tool != 1 && tool != 2) ? Color.white : Color.cyan;
-            float bezierWidth = i == activeSpline ? 3f : 2f;
+            Color bezierColor = Color.cyan;
+            float bezierWidth = 2f;
+            if (i == activeSpline & tool != 1 && tool != 2) {
+                bezierColor = Color.white;
+                bezierWidth = 2f;
+            }
             for (int j = 1; j < component.PointCount(i); j++) {
                 Handles.DrawBezier(
                     component.GetPoint(i, j - 1),
@@ -59,18 +68,20 @@ public class SplineComponentEditor : Editor {
             for (int j = 0; j < component.PointCount(i); j++) {
                 switch (tool) {
                     case -1:
-                        ShowPoint(i, j, true);
+                        ShowControlPoint(i, j);
                         break;
                     case 0:
-                        ShowPoint(i, j, true);
+                        ShowControlPoint(i, j);
                         break;
                     case 1:
-                        ShowPoint(i, j, false);
+                        ShowSimplePoint(i, j);
                         break;
                     case 2:
-                        if (component.GetConnectedIndex(i, j) >= 0) {
-                            ShowPoint(i, j, false);
-                        }
+                        if (component.GetConnectedIndex(i, j) >= 0)
+                            ShowSimplePoint(i, j);
+                        break;
+                    case 3:
+                        ShowSplinePoint(i);
                         break;
                 }
             }
@@ -81,7 +92,7 @@ public class SplineComponentEditor : Editor {
     }
 
     // Generate ControlPoint positions
-    private void ShowPoint(int spline, int index, bool drawHandles) {
+    private void ShowControlPoint(int spline, int index) {
         Vector3[] points = new Vector3[3] {
             component.GetPoint(spline, index),
             component.GetHandle(spline, index, 0),
@@ -89,40 +100,33 @@ public class SplineComponentEditor : Editor {
         };
 
         if (selectedIndex == index && spline == activeSpline) {
-            if (drawHandles) {
-                Handles.color = Color.gray;
-                Handles.DrawLine(points[0], points[1]);
-                Handles.DrawLine(points[0], points[2]);
-                for (int i = 0; i < 3; i++) {
-                    ShowControlPoint(spline, index, i, points[i], true);
-                }
-            }
-            else {
-                ShowControlPoint(spline, index, 0, points[0], true);
+            Handles.color = Color.gray;
+            Handles.DrawLine(points[0], points[1]);
+            Handles.DrawLine(points[0], points[2]);
+            for (int i = 0; i < 3; i++) {
+                ShowControlPointButton(spline, index, i, points[i], true);
             }
         }
         else {
             int connectedIndex = component.GetConnectedIndex(spline, index);
             if (connectedIndex < 0) {
-                ShowControlPoint(spline, index, 0, points[0], false);
+                ShowControlPointButton(spline, index, 0, points[0], false);
             }
             else if (selectedIndex < 0 || activeSpline < 0 || connectedIndex != component.GetConnectedIndex(activeSpline, selectedIndex)) {
-                ShowControlPoint(spline, index, 0, points[0], false);
+                ShowControlPointButton(spline, index, 0, points[0], false);
             }
         }
     }
 
     // Draw ControlPoints
-    private void ShowControlPoint(int spline, int index, int handle, Vector3 position, bool selected) {
+    private void ShowControlPointButton(int spline, int index, int handle, Vector3 position, bool selected) {
         float size = HandleUtility.GetHandleSize(position);
         Handles.color = selected ? Color.white : Color.blue;
 
         if (Handles.Button(position, componentRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
-            if (tool != 1) {
-                selectedIndex = index;
-                selectedHandle = handle;
-                activeSpline = spline;
-            }
+            selectedIndex = index;
+            selectedHandle = handle;
+            activeSpline = spline;
             handleRotation = Quaternion.identity;
             pointRotation = component.GetRotation(spline, index);
             Repaint();
@@ -130,15 +134,80 @@ public class SplineComponentEditor : Editor {
         if (selected) {
             switch (Tools.current) {
                 case Tool.Move:
-                    if (selectedHandle == handle) MoveHandle(index, handle, position);
+                    if (selectedHandle == handle)
+                        MoveHandle(index, handle, position);
                     break;
                 case Tool.Rotate:
-                    if (handle == 0) RotationHandle(index, position);
+                    if (handle == 0)
+                        RotationHandle(index, position);
                     break;
                 case Tool.Scale:
-                    if (handle == 0) ScaleHandle(index, position);
+                    if (handle == 0)
+                        ScaleHandle(index, position);
                     break;
             }
+        }
+    }
+
+    // Generate ControlPoint positions
+    private void ShowSimplePoint(int spline, int index) {
+        Vector3 point = component.GetPoint(spline, index);
+
+        if (selectedIndex == index && spline == activeSpline) {
+            ShowControlPointButton(spline, index, 0, point, true);
+        }
+        else {
+            int connectedIndex = component.GetConnectedIndex(spline, index);
+            if (connectedIndex < 0) {
+                ShowSimplePointButton(spline, index, point, false);
+            }
+            else if (selectedIndex < 0 || activeSpline < 0 || connectedIndex != component.GetConnectedIndex(activeSpline, selectedIndex)) {
+                ShowSimplePointButton(spline, index, point, false);
+            }
+        }
+    }
+
+    // Draw ControlPoints
+    private void ShowSimplePointButton(int spline, int index, Vector3 position, bool selected) {
+        float size = HandleUtility.GetHandleSize(position);
+        Handles.color = selected ? Color.white : Color.blue;
+
+        if (Handles.Button(position, componentRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
+            selectedIndex = index;
+            selectedHandle = 0;
+            activeSpline = spline;
+            handleRotation = Quaternion.identity;
+            pointRotation = component.GetRotation(spline, index);
+            Repaint();
+        }
+        if (selected) {
+            switch (Tools.current) {
+                case Tool.Move:
+                    MoveHandle(index, 0, position);
+                    break;
+                case Tool.Rotate:
+                    RotationHandle(index, position);
+                    break;
+                case Tool.Scale:
+                    ScaleHandle(index, position);
+                    break;
+            }
+        }
+    }
+
+    // Generate ControlPoint positions
+    private void ShowSplinePoint(int spline) {
+        Vector3 point = component.GetPoint(spline, .5f * component.GetArcLength(spline));
+        bool selected = (spline == activeSpline);
+
+        float size = HandleUtility.GetHandleSize(point);
+        Handles.color = selected ? Color.white : Color.blue;
+
+        if (Handles.Button(point, componentRotation, size * handleSize, size * pickSize, Handles.DotHandleCap)) {
+            selectedIndex = -1;
+            selectedHandle = 0;
+            activeSpline = spline;
+            Repaint();
         }
     }
 
@@ -181,7 +250,7 @@ public class SplineComponentEditor : Editor {
                 Undo.RecordObject(component, "Rotate Point");
                 EditorUtility.SetDirty(component);
                 if (tool == 0)
-                component.SetRotation(activeSpline, index, rotation);
+                    component.SetRotation(activeSpline, index, rotation);
                 else if (tool == 2)
                     component.RotateConnection(activeSpline, index, rotation);
             }
@@ -219,6 +288,7 @@ public class SplineComponentEditor : Editor {
         }
     }
 
+    // Draw the fins that show the angle and orientation of a spline
     private void ShowAngles(int spline) {
         Vector3 lineStart = component.GetPoint(spline, 0f);
         Gizmos.color = Color.cyan;
@@ -261,12 +331,13 @@ public class SplineComponentEditor : Editor {
                 DrawJunctionInspector();
                 break;
             case 3:
+                DrawSplineInspector();
                 break;
         }
     }
 
     public void DrawEditInspector() {
-        if (activeSpline >= 0) {
+        if (selectedIndex >= 0) {
             if (component.GetConnectedIndex(activeSpline, selectedIndex) >= 0) {
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Previous", GUILayout.Height(EditorGUIUtility.singleLineHeight))) {
@@ -318,8 +389,8 @@ public class SplineComponentEditor : Editor {
             BezierControlPointMode mode = (BezierControlPointMode)EditorGUILayout.EnumPopup("Mode", component.GetMode(activeSpline, selectedIndex));
             if (EditorGUI.EndChangeCheck()) {
                 Undo.RecordObject(component, "Change Point Mode");
-                component.SetMode(activeSpline, selectedIndex, mode);
                 EditorUtility.SetDirty(component);
+                component.SetMode(activeSpline, selectedIndex, mode);
             }
 
             EditorGUI.BeginChangeCheck();
@@ -379,19 +450,19 @@ public class SplineComponentEditor : Editor {
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(remove, GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
                 Undo.RecordObject(component, "Remove point");
+                EditorUtility.SetDirty(component);
                 component.RemovePoint(activeSpline, selectedIndex);
                 activeSpline = -1;
                 selectedIndex = -1;
                 selectedHandle = 0;
-                EditorUtility.SetDirty(component);
             }
             if (GUILayout.Button(Resources.Load<Texture>("AddPoint_NS"), GUILayout.Height(EditorGUIUtility.singleLineHeight + 3))) {
                 Undo.RecordObject(component, "Start new curve");
+                EditorUtility.SetDirty(component);
                 component.AddSpline(activeSpline, selectedIndex);
                 activeSpline = component.splineCount - 1;
-                selectedIndex = -1;
+                selectedIndex = 1;
                 selectedHandle = 0;
-                EditorUtility.SetDirty(component);
             }
             GUILayout.EndHorizontal();
             EditorGUILayout.Space();
@@ -423,19 +494,52 @@ public class SplineComponentEditor : Editor {
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Flatten X")) {
+                Undo.RecordObject(component, "Flatten X");
+                EditorUtility.SetDirty(component);
                 component.ScaleConnection(activeSpline, selectedIndex, new Vector3(0, 1, 1));
                 SceneView.RepaintAll();
             }
             if (GUILayout.Button("Flatten Y")) {
+                Undo.RecordObject(component, "Flatten Y");
+                EditorUtility.SetDirty(component);
                 component.ScaleConnection(activeSpline, selectedIndex, new Vector3(1, 0, 1));
                 SceneView.RepaintAll();
             }
             if (GUILayout.Button("Flatten Z")) {
+                Undo.RecordObject(component, "Flatten Z");
+                EditorUtility.SetDirty(component);
                 component.ScaleConnection(activeSpline, selectedIndex, new Vector3(1, 1, 0));
                 SceneView.RepaintAll();
             }
             GUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
+        }
+    }
+
+    public void DrawSplineInspector() {
+        if (activeSpline >= 0) {
+            GUILayout.Label("Spline:");
+            EditorGUI.indentLevel++;
+
+            EditorGUI.BeginChangeCheck();
+            string name = EditorGUILayout.TextField("Name", component.GetSplineName(activeSpline));
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Change spline name");
+                EditorUtility.SetDirty(component);
+                component.SetSplineName(activeSpline, name);
+            }
+
+            EditorGUI.BeginChangeCheck();
+            SplineSettings settings = (SplineSettings) EditorGUILayout.ObjectField("Settings", component.GetSplineSettings(activeSpline), typeof(SplineSettings), true);
+            if (EditorGUI.EndChangeCheck()) {
+                Undo.RecordObject(component, "Change spline settings");
+                EditorUtility.SetDirty(component);
+                component.SetSplineSettings(activeSpline, settings);
+            }
+
+            EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
         }
     }
 }

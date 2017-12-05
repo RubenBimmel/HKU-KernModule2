@@ -89,7 +89,7 @@ MonoBehaviour:
   m_MinSize: {x: 713, y: 492}
   m_MaxSize: {x: 18008, y: 14042}
   vertical: 0
-  controlID: 85
+  controlID: 9
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -128,12 +128,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1643
+    width: 1630
     height: 947
   m_MinSize: {x: 436, y: 492}
   m_MaxSize: {x: 14006, y: 14042}
   vertical: 1
-  controlID: 86
+  controlID: 10
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -148,9 +148,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 1643
+    x: 1630
     y: 0
-    width: 277
+    width: 290
     height: 947
   m_MinSize: {x: 277, y: 71}
   m_MaxSize: {x: 4002, y: 4021}
@@ -175,10 +175,10 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1643
+    width: 1630
     height: 676
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
@@ -203,12 +203,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 676
-    width: 1643
+    width: 1630
     height: 271
   m_MinSize: {x: 436, y: 271}
   m_MaxSize: {x: 14006, y: 10021}
   vertical: 0
-  controlID: 87
+  controlID: 59
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -225,10 +225,10 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 815
+    width: 807
     height: 271
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 16}
@@ -248,9 +248,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 815
+    x: 807
     y: 0
-    width: 828
+    width: 823
     height: 271
   m_MinSize: {x: 234, y: 271}
   m_MaxSize: {x: 10004, y: 10021}
@@ -281,9 +281,9 @@ MonoBehaviour:
   m_DepthBufferBits: 0
   m_Pos:
     serializedVersion: 2
-    x: 1645
+    x: 1632
     y: 92
-    width: 275
+    width: 288
     height: 926
   m_ScrollPosition: {x: 0, y: 0}
   m_InspectorMode: 0
@@ -314,9 +314,9 @@ MonoBehaviour:
   m_DepthBufferBits: 0
   m_Pos:
     serializedVersion: 2
-    x: 817
+    x: 809
     y: 768
-    width: 824
+    width: 819
     height: 250
   m_SearchFilter:
     m_NameFilter: 
@@ -330,18 +330,18 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/SplineTool
+    - Assets
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/SplineTool
+  - Assets
   m_LastFoldersGridSize: -1
   m_LastProjectPath: D:\HKU\Jaar2Dev\Kernmodule2\HKU-KernModule2\SplineTool
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 40270000
-    m_LastClickedID: 10048
+    m_SelectedIDs: 2e270000
+    m_LastClickedID: 10030
     m_ExpandedIDs: 000000002e2700004027000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -525,7 +525,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 92
-    width: 1641
+    width: 1628
     height: 655
   m_SceneLighting: 1
   lastFramingTime: 1828.2792434952075
@@ -533,9 +533,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 0.33682716, y: -0.12649488, z: 2.1388617}
+    m_Target: {x: 0.51379967, y: -0.25105572, z: 2.2054176}
     speed: 2
-    m_Value: {x: 0.33682716, y: -0.12649488, z: 2.1388617}
+    m_Value: {x: 0.51379967, y: -0.25105572, z: 2.2054176}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -558,13 +558,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: 0.17883037, y: 0.7686779, z: -0.25003624, w: 0.5617546}
+    m_Target: {x: 0.28949654, y: 0.6117592, z: -0.2618519, w: 0.6887114}
     speed: 2
-    m_Value: {x: 0.17874707, y: 0.76831985, z: -0.24991979, w: 0.5614929}
+    m_Value: {x: 0.28935948, y: 0.61146957, z: -0.26172796, w: 0.68838537}
   m_Size:
-    m_Target: 2.7061372
+    m_Target: 3.0689056
     speed: 2
-    m_Value: 2.7061372
+    m_Value: 3.0689056
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -600,13 +600,13 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 768
-    width: 813
+    width: 805
     height: 250
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: bc270000
-    m_LastClickedID: 10172
-    m_ExpandedIDs: 8cfbffff00000000
+    m_SelectedIDs: b8c3ffff
+    m_LastClickedID: -15432
+    m_ExpandedIDs: e8dcffffeedcffff3ef8ffffa6fbffff00000000c2270000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

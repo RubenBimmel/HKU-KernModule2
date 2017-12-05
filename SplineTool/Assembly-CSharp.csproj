@@ -55,6 +55,7 @@
      <Compile Include="Assets\SplineTool\ControlPoint.cs" />
      <Compile Include="Assets\SplineTool\Spline.cs" />
      <Compile Include="Assets\SplineTool\SplineComponent.cs" />
+     <Compile Include="Assets\SplineTool\SplineSettings.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

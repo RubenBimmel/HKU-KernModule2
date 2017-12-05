@@ -112,6 +112,34 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &58651135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 58651136}
+  m_Layer: 0
+  m_Name: Spline_02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &58651136
+Transform:
+  m_ObjectHideFlags: 8
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 58651135}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 700177682}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &249906210
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,112 +220,79 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &717536581
+--- !u!1 &421016767
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 717536583}
-  - component: {fileID: 717536582}
+  - component: {fileID: 421016768}
   m_Layer: 0
-  m_Name: SplineComponent
+  m_Name: Spline_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &717536582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 717536581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3815cddb5036ac0489eadd550c7dbfb3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  splines:
-  - points:
-    - anchor: {x: 0, y: 0, z: 1}
-      handles:
-      - {x: -0, y: -0, z: -0.5}
-      - {x: 0, y: 0, z: 0.5}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-    - anchor: {x: 0, y: 0, z: 2}
-      handles:
-      - {x: 0.0029738043, y: -0, z: -0.6079675}
-      - {x: -0.0029738043, y: 0, z: 0.6079675}
-      up: {x: -0.009334229, y: 0.9377425, z: -0.34720597}
-      mode: 1
-      connectedIndex: 0
-    - anchor: {x: 1.0484785, y: 0.09926629, z: 2.8829374}
-      handles:
-      - {x: -0.7540778, y: 0, z: 0.17773128}
-      - {x: 0.7540778, y: -0, z: -0.17773128}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-    - anchor: {x: 2.1158834, y: 0.09926629, z: 2.6313574}
-      handles:
-      - {x: -0.24333264, y: -0, z: 0.05735185}
-      - {x: 0.24333264, y: 0, z: -0.05735185}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-  - points:
-    - anchor: {x: 0, y: 0, z: 2}
-      handles:
-      - {x: 0.41029325, y: -0.000000006114827, z: -0.007349927}
-      - {x: -0.41029325, y: 0.000000006114827, z: 0.007349927}
-      up: {x: 0.0046188533, y: 0.96617764, z: 0.2578361}
-      mode: 1
-      connectedIndex: 0
-    - anchor: {x: -0.7033278, y: 0, z: 2.7687056}
-      handles:
-      - {x: -0, y: -0, z: -0.5}
-      - {x: 0, y: 0, z: 0.5}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-    - anchor: {x: -0.7033278, y: 0, z: 3.7687056}
-      handles:
-      - {x: -0, y: -0, z: -0.25}
-      - {x: 0, y: 0, z: 0.25}
-      up: {x: 0, y: 1, z: 0}
-      mode: 1
-      connectedIndex: -1
-  connectedPoints:
-  - anchor: {x: 0, y: 0, z: 2}
-    handles:
-    - {x: 0.41029325, y: -0.000000006114827, z: -0.007349927}
-    - {x: -0.41029325, y: 0.000000006114827, z: 0.007349927}
-    up: {x: 0.0046188533, y: 0.96617764, z: 0.2578361}
-    mode: 1
-    connectedIndex: 0
-  - anchor: {x: 0, y: 0, z: 2}
-    handles:
-    - {x: 0.0029738043, y: -0, z: -0.6079675}
-    - {x: -0.0029738043, y: 0, z: 0.6079675}
-    up: {x: -0.009334229, y: 0.9377425, z: -0.34720597}
-    mode: 1
-    connectedIndex: 0
---- !u!4 &717536583
+--- !u!4 &421016768
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 8
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 717536581}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 421016767}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
+  m_Father: {fileID: 700177682}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &648973383
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 648973384}
+  m_Layer: 0
+  m_Name: Spline_03
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &648973384
+Transform:
+  m_ObjectHideFlags: 8
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 648973383}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 700177682}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &700177682
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 4125050307527654, guid: af0366aef2a33484f952b91118a3c1f3,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1953802698}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1215558832}
+  - {fileID: 421016768}
+  - {fileID: 58651136}
+  - {fileID: 648973384}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1157312809
 GameObject:
@@ -362,5 +357,188 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1215558831
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1215558832}
+  m_Layer: 0
+  m_Name: Spline_00
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1215558832
+Transform:
+  m_ObjectHideFlags: 8
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1215558831}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 700177682}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1953802698
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 1744874168424242, guid: af0366aef2a33484f952b91118a3c1f3,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 700177682}
+  - component: {fileID: 1953802699}
+  m_Layer: 0
+  m_Name: SplineComponent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1953802699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 114633119237278852, guid: af0366aef2a33484f952b91118a3c1f3,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1953802698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3815cddb5036ac0489eadd550c7dbfb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  splines:
+  - points:
+    - anchor: {x: 0, y: 0, z: 1}
+      handles:
+      - {x: -0, y: -0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    - anchor: {x: 0, y: 0, z: 2}
+      handles:
+      - {x: 0.0029738043, y: -0, z: -0.6079675}
+      - {x: -0.0029738043, y: 0, z: 0.6079675}
+      up: {x: -0.009334229, y: 0.9377425, z: -0.34720597}
+      mode: 1
+      connectedIndex: 0
+    - anchor: {x: 1.0484785, y: 0.09926629, z: 2.8829374}
+      handles:
+      - {x: -0.7540778, y: 0, z: 0.17773128}
+      - {x: 0.7540778, y: -0, z: -0.17773128}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    - anchor: {x: 2.1158834, y: 0.09926629, z: 2.6313574}
+      handles:
+      - {x: -0.24333264, y: -0, z: 0.05735185}
+      - {x: 0.24333264, y: 0, z: -0.05735185}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    name: Spline_00
+    settings: {fileID: 0}
+  - points:
+    - anchor: {x: 0, y: 0, z: 2}
+      handles:
+      - {x: 0.41029325, y: -0.000000006114827, z: -0.007349927}
+      - {x: -0.41029325, y: 0.000000006114827, z: 0.007349927}
+      up: {x: 0.0046188533, y: 0.96617764, z: 0.2578361}
+      mode: 1
+      connectedIndex: 0
+    - anchor: {x: -0.7033278, y: 0, z: 2.7687056}
+      handles:
+      - {x: -0, y: -0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: 2
+    - anchor: {x: -0.7033278, y: 0, z: 3.7687056}
+      handles:
+      - {x: -0, y: -0, z: -0.25}
+      - {x: 0, y: 0, z: 0.25}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    name: Spline_01
+    settings: {fileID: 0}
+  - points:
+    - anchor: {x: -0.7033278, y: 0, z: 2.7687056}
+      handles:
+      - {x: 0.32589257, y: -0, z: -0.21446657}
+      - {x: -0.32589257, y: 0, z: 0.21446657}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: 2
+    - anchor: {x: -1.0131266, y: 0, z: 3.7687056}
+      handles:
+      - {x: -0, y: -0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    name: Spline_02
+    settings: {fileID: 0}
+  - points:
+    - anchor: {x: 0, y: 0, z: 2}
+      handles:
+      - {x: -0, y: -0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: 0
+    - anchor: {x: -0.3865428, y: 0, z: 3.033776}
+      handles:
+      - {x: -0, y: -0, z: -0.5}
+      - {x: 0, y: 0, z: 0.5}
+      up: {x: 0, y: 1, z: 0}
+      mode: 1
+      connectedIndex: -1
+    name: Spline_03
+    settings: {fileID: 0}
+  connectedPoints:
+  - anchor: {x: 0, y: 0, z: 2}
+    handles:
+    - {x: -0, y: -0, z: -0.5}
+    - {x: 0, y: 0, z: 0.5}
+    up: {x: 0, y: 1, z: 0}
+    mode: 1
+    connectedIndex: 0
+  - anchor: {x: 0, y: 0, z: 2}
+    handles:
+    - {x: 0.41029325, y: -0.000000006114827, z: -0.007349927}
+    - {x: -0.41029325, y: 0.000000006114827, z: 0.007349927}
+    up: {x: 0.0046188533, y: 0.96617764, z: 0.2578361}
+    mode: 1
+    connectedIndex: 0
+  - anchor: {x: 0, y: 0, z: 2}
+    handles:
+    - {x: 0.0029738043, y: -0, z: -0.6079675}
+    - {x: -0.0029738043, y: 0, z: 0.6079675}
+    up: {x: -0.009334229, y: 0.9377425, z: -0.34720597}
+    mode: 1
+    connectedIndex: 0
+  - anchor: {x: -0.7033278, y: 0, z: 2.7687056}
+    handles:
+    - {x: 0.32589257, y: -0, z: -0.21446657}
+    - {x: -0.32589257, y: 0, z: 0.21446657}
+    up: {x: 0, y: 1, z: 0}
+    mode: 1
+    connectedIndex: 2
+  - anchor: {x: -0.7033278, y: 0, z: 2.7687056}
+    handles:
+    - {x: -0, y: -0, z: -0.5}
+    - {x: 0, y: 0, z: 0.5}
+    up: {x: 0, y: 1, z: 0}
+    mode: 1
+    connectedIndex: 2

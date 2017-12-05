@@ -21,6 +21,7 @@ public class ControlPoint {
     [SerializeField]
     private BezierControlPointMode mode;
     public int connectedIndex;
+
     //Constructor with position
     public ControlPoint(Vector3 position, Vector3 forward) {
         anchor = position;

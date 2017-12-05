@@ -11,16 +11,19 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     [SerializeField]
     private List<ControlPoint> connectedPoints;
     private new Transform transform;
+    private List<Transform> generatedContent;
 
     public void Reset() {
         splines = new List<Spline> {
-            new Spline(Vector3.forward)
+            new Spline(Vector3.forward, 0)
         };
         connectedPoints = new List<ControlPoint> { };
+        ResetGeneratedContent();
     }
 
     public void Awake() {
         transform = gameObject.transform;
+        ResetGeneratedContent();
     }
 
     public Vector3 GetPoint (int spline, int point) {
@@ -126,6 +129,14 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return connectedPoints[index].connectedIndex;
     }
 
+    public string GetSplineName(int index) {
+        return splines[index].name;
+    }
+
+    public SplineSettings GetSplineSettings (int index) {
+        return splines[index].settings;
+    }
+
     //This function should be used instead directly in the control point to be able to move connected points
     public void SetAnchorPosition (int spline, int index, Vector3 position) {
         ControlPoint point = splines[spline].points[index];
@@ -134,28 +145,29 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             for (int i = 0; i < connectedPoints.Count; i++) {
                 if (connectedPoints[i].connectedIndex == point.connectedIndex)
                     connectedPoints[i].SetAnchorPosition(position);
-                Debug.Log("QQQ");
-                foreach (Spline s in splines) {
-                    s.ResetArcLengthTable();
-                }
+            }
+
+            // QQQ more effective way?
+            for (int i = 0; i < splineCount; i++) {
+                UpdateSpline(i);
             }
         }
         else {
             point.SetAnchorPosition(position);
-            splines[spline].ResetArcLengthTable();
+            UpdateSpline(spline);
         }
     }
 
     public void SetHandleMagnitude (int spline, int point, int index, float magnitude) {
         splines[spline].points[point].SetHandleMagnitude(index, magnitude);
-        splines[spline].ResetArcLengthTable();
+        UpdateSpline(spline);
     }
 
     public void SetHandlePosition (int spline, int point, int index, Vector3 position) {
         ControlPoint controlPoint = splines[spline].points[point];
         position = transform.InverseTransformPoint(position);
         controlPoint.SetHandlePosition(index, position);
-        splines[spline].ResetArcLengthTable();
+        UpdateSpline(spline);
     }
 
     public void SetMode (int spline, int point, BezierControlPointMode mode) {
@@ -165,6 +177,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     public void SetRotation (int spline, int point, Quaternion rotation) {
         ControlPoint controlPoint = splines[spline].points[point];
         controlPoint.SetRotation(Quaternion.Inverse(transform.rotation) * rotation);
+        UpdateSpline(spline);
     }
 
     public void RotateConnection (int spline, int point, Quaternion newRotation) {
@@ -177,9 +190,9 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             }
         }
 
-        Debug.Log("QQQ");
-        foreach (Spline s in splines) {
-            s.ResetArcLengthTable();
+        // QQQ more effective way?
+        for (int i = 0; i < splineCount; i++) {
+            UpdateSpline(i);
         }
     }
 
@@ -196,18 +209,20 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             }
         }
 
-        Debug.Log("QQQ");
-        foreach (Spline s in splines) {
-            s.ResetArcLengthTable();
+        // QQQ more effective way?
+        for (int j = 0; j < splineCount; j++) {
+            UpdateSpline(j);
         }
     }
 
     public void InsertControlPoint (int spline, int index) {
         splines[spline].InsertControlPoint(index);
+        UpdateSpline(spline);
     }
 
     public void AddControlPoint (int spline) {
         splines[spline].AddControlPoint();
+        UpdateSpline(spline);
     }
 
     // Adds both points to the connected points list (if they aren't already) and gives them the same connectedIndex
@@ -231,10 +246,19 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    public void SetSplineName(int index, string name) {
+        splines[index].name = name;
+    }
+
+    public void SetSplineSettings(int index, SplineSettings settings) {
+        splines[index].settings = settings;
+    }
+
     public void AddSpline(int spline, int index) {
         ControlPoint point = splines[spline].points[index];
-        splines.Add(new Spline(point.GetAnchorPosition()));
+        splines.Add(new Spline(point.GetAnchorPosition(), splineCount));
         ConnectPoints(point, splines[splines.Count - 1].points[0]);
+        AddGeneratedBranch();
     }
 
     public void RemovePoint(int spline, int index) {
@@ -258,12 +282,30 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                 }
             }
             splines[spline].RemoveControlPoint(point);
+            UpdateSpline(spline);
         }
+
         if (splines[spline].points.Count == 1) {
             RemovePoint(spline, 0);
         }
         else if (splines[spline].points.Count == 0) {
-            splines.RemoveAt(spline);
+            RemoveSpline(spline);
+        }
+    }
+
+    public void RemoveSpline (int index) {
+        splines.RemoveAt(index);
+        RemoveGeneratedBranch(index);
+    }
+
+    public void UpdateSpline (int index) {
+        if (splineCount != generatedContent.Count)
+            ResetGeneratedContent();
+        splines[index].ResetArcLengthTable();
+        if (splines[index].settings) {
+            ApplySettings(index);
+        } else {
+            ClearBranch(index);
         }
     }
 
@@ -284,5 +326,50 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             }
         }
         connectedPoints.Sort(delegate (ControlPoint a, ControlPoint b) { return a.connectedIndex.CompareTo(b.connectedIndex); });
+    }
+
+    public void ResetGeneratedContent() {
+        if (generatedContent != null) {
+            for (int i = 0; i < generatedContent.Count; i++) {
+                if (generatedContent[i])
+                    DestroyImmediate(generatedContent[i].gameObject);
+            }
+        }
+
+        Resources.UnloadUnusedAssets();
+        generatedContent = new List<Transform>();
+
+        for (int i = 0; i < splineCount; i++) {
+            Transform newTransform = new GameObject().transform;
+            newTransform.parent = transform;
+            newTransform.name = GetSplineName(i);
+            newTransform.hideFlags = HideFlags.NotEditable;
+            generatedContent.Add(newTransform);
+        }
+    }
+
+    private void AddGeneratedBranch() {
+        Transform newTransform = new GameObject().transform;
+        newTransform.parent = transform;
+        newTransform.name = GetSplineName(splineCount - 1);
+        newTransform.hideFlags = HideFlags.NotEditable;
+        generatedContent.Add(newTransform);
+    }
+
+    private void RemoveGeneratedBranch(int index) {
+        if (generatedContent[index])
+            DestroyImmediate(generatedContent[index].gameObject);
+        Resources.UnloadUnusedAssets();
+        generatedContent.RemoveAt(index);
+    }
+
+    private void ApplySettings (int index) {
+    }
+
+    private void ClearBranch (int index) {
+        foreach( Transform child in generatedContent[index]) {
+            DestroyImmediate(child.gameObject);
+            Resources.UnloadUnusedAssets();
+        }
     }
 }
