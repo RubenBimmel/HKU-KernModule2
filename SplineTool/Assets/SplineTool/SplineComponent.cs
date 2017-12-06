@@ -370,12 +370,19 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     private void ApplySettings (int index) {
         ClearBranch(index);
-        GameObject newObject = new GameObject();
-        newObject.transform.parent = generatedContent[index];
-        MeshFilter filter = newObject.AddComponent<MeshFilter>();
-        filter.mesh = splines[index].settings.generated.generate(splines[index]);
-        MeshRenderer renderer = newObject.AddComponent<MeshRenderer>();
-        renderer.material = splines[index].settings.generated.material;
+        for (int i = 0; i < splines[index].settings.generated.Length; i++) {
+            GameObject newObject = new GameObject();
+            newObject.transform.parent = generatedContent[index];
+            string name = splines[index].settings.generated[i].name;
+            if (name.Length == 0) {
+                name = string.Concat("Generated Mesh ", i.ToString("D2"));
+            }
+            newObject.name = name;
+            MeshFilter filter = newObject.AddComponent<MeshFilter>();
+            filter.mesh = splines[index].settings.generated[i].generate(splines[index]);
+            MeshRenderer renderer = newObject.AddComponent<MeshRenderer>();
+            renderer.material = splines[index].settings.generated[i].material;
+        }
     }
 
     private void ClearBranch (int index) {

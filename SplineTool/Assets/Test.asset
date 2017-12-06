@@ -12,9 +12,27 @@ MonoBehaviour:
   m_Name: Test
   m_EditorClassIdentifier: 
   generated:
-    sides: 4
-    length: 0.4
-    rotation: 45
-    scale: 0.5
-    offset: {x: 0, y: 0}
+  - name: 
+    length: 0.1
+    sides: 6
+    smoothEdges: 1
+    rotation: 0
+    scale: {x: 0.01, y: 0.01}
+    offset: {x: 0.06, y: 0}
+    material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - name: 
+    length: 0.1
+    sides: 6
+    smoothEdges: 1
+    rotation: 0
+    scale: {x: 0.01, y: 0.01}
+    offset: {x: -0.06, y: 0}
+    material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - name: 
+    length: 0.1
+    sides: 6
+    smoothEdges: 1
+    rotation: 0
+    scale: {x: 0.015, y: 0.015}
+    offset: {x: 0, y: -0.04}
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}

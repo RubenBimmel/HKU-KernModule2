@@ -6,5 +6,5 @@ using System;
 [Serializable]
 [CreateAssetMenu(fileName = "SplineSettings", menuName = "Spline settings", order = 1)]
 public class SplineSettings : ScriptableObject {
-    public GeneratedMesh generated;
+    public GeneratedMesh[] generated = new GeneratedMesh[1];
 }
