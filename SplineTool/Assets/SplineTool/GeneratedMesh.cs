@@ -15,6 +15,7 @@ public class GeneratedMesh {
     public float rotation = 0;
     public Vector2 scale = Vector2.one;
     public Vector2 offset = Vector2.zero;
+    public bool cap = true;
     public Material material;
 
     public Mesh generate (Spline spline) {
@@ -23,8 +24,10 @@ public class GeneratedMesh {
 
         int meshLength = Mathf.FloorToInt(spline.GetArcLength() / length) + 1;
         int vertexRows = smoothEdges ? sides : sides * 2;
+        int capVertices = cap ? sides * 2 : 0;
+        int capTriangles = cap ? (sides - 2) * 12 : 0;
 
-        Vector3[] vertices = new Vector3[meshLength * vertexRows];
+        Vector3[] vertices = new Vector3[meshLength * vertexRows + capVertices];
         for (int i = 0; i < meshLength; i++) {
             Vector3 position = spline.GetPoint(i * length);
             Vector3 forward = spline.GetDirection(i * length).normalized;
@@ -34,7 +37,7 @@ public class GeneratedMesh {
                 float angle = Mathf.Deg2Rad * (360 / sides * j + rotation);
                 Vector3 vertex = position;
                 vertex += (Mathf.Sin(angle) * scale.x + offset.x) * right;
-                vertex += (Mathf.Cos(angle) * scale.x + offset.y) * up;
+                vertex += (Mathf.Cos(angle) * scale.y + offset.y) * up;
                 vertices[i + meshLength * j] = vertex;
                 if (!smoothEdges) {
                     vertices[i + meshLength * (sides + j)] = vertex;
@@ -42,7 +45,14 @@ public class GeneratedMesh {
             }
         }
 
-        int[] triangles = new int[(meshLength - 1) * sides * 6];
+        if (cap) {
+            for (int i = 0; i < sides; i++) {
+                vertices[meshLength * vertexRows + i] = vertices[i * meshLength];
+                vertices[meshLength * vertexRows + sides + i] = vertices[(i + 1) * meshLength - 1];
+            }
+        }
+
+        int[] triangles = new int[(meshLength - 1) * sides * 6 + capTriangles];
         for (int i = 0; i < (meshLength -1); i++) {
             for (int j = 0; j < sides; j++) {
                 int offset = 1;
@@ -58,15 +68,18 @@ public class GeneratedMesh {
             }
         }
 
-        /*for (int i = 0; i < sides - 2; i++) {
+        if (cap) {
             int start = (meshLength - 1) * sides * 6;
-            triangles[start + i * 3] = 1 + i;
-            triangles[start + i * 3 + 1] = 0;
-            triangles[start + i * 3 + 2] = 2 + i;
-            triangles[start + (sides - 2) * 3 + i * 3] = meshLength* sides;
-            triangles[start + (sides - 2) * 3 + i * 3 + 1] = meshLength * sides + 1 + i;
-            triangles[start + (sides - 2) * 3 + i * 3 + 2] = meshLength * sides + 2 + i;
-        }*/
+            int vertexStart = meshLength * vertexRows;
+            for (int i = 0; i < sides - 2; i++) {
+                triangles[start + i * 3] = vertexStart + 1 + i;
+                triangles[start + i * 3 + 1] = vertexStart + 0;
+                triangles[start + i * 3 + 2] = vertexStart + 2 + i;
+                triangles[start + (sides - 2) * 3 + i * 3] = vertexStart + sides;
+                triangles[start + (sides - 2) * 3 + i * 3 + 1] = vertexStart + sides + 1 + i;
+                triangles[start + (sides - 2) * 3 + i * 3 + 2] = vertexStart + sides + 2 + i;
+            }
+        }
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;

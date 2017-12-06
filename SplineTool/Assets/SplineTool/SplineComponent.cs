@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -382,6 +383,22 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             filter.mesh = splines[index].settings.generated[i].generate(splines[index]);
             MeshRenderer renderer = newObject.AddComponent<MeshRenderer>();
             renderer.material = splines[index].settings.generated[i].material;
+        }
+        for (int i = 0; i < splines[index].settings.objects.Length; i++) {
+            for (float j = 0; j < splines[index].GetArcLength(); j += splines[index].settings.objects[i].distance) {
+                Transform newObject = (Transform) PrefabUtility.InstantiatePrefab(splines[index].settings.objects[i].objectReference);
+                newObject.parent = generatedContent[index];
+
+                Vector3 forward = splines[index].GetDirection(j);
+                Vector3 up = splines[index].GetUp(j);
+                Vector3 right = Vector3.Cross(forward, up);
+
+                newObject.position = splines[index].GetPoint(j) + right * splines[index].settings.objects[i].position.x + up * splines[index].settings.objects[i].position.y;
+                Quaternion rotationX = Quaternion.FromToRotation(Vector3.forward, forward);
+                Quaternion rotationY = Quaternion.FromToRotation(Vector3.up, up);
+                newObject.rotation = rotationX * rotationY;
+                newObject.localScale = splines[index].settings.objects[i].scale;
+            }
         }
     }
 
