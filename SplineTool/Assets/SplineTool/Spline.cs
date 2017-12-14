@@ -8,7 +8,10 @@ public class Spline {
 
     public List<ControlPoint> points;
     public string name;
-    public SplineSettings settings;
+    [SerializeField]
+    private SplineSettings settings;
+    [SerializeField]
+    private bool[] assetIsActive;
 
     private float[] arcLengthTable;
     private static int tableSize = 100;
@@ -52,9 +55,11 @@ public class Spline {
 
     private float GetArcPos (float t) {
         for (int i = 0; i < arcLengthTable.Length; i++) {
-            //Debug.Log(arcLengthTable[i]);
             if (arcLengthTable[i] > t) {
-                return (float)(i - 1) / (float)tableSize;
+                float T1 = (float)(i - 1) / (float)tableSize;
+                float T2 = (float)(i) / (float)tableSize;
+                float dT = (t - arcLengthTable[i - 1]) / (arcLengthTable[i] - arcLengthTable[i - 1]);
+                return Mathf.Lerp(T1, T2, dT);
             }
         }
         return points.Count - 1;
@@ -110,6 +115,24 @@ public class Spline {
         return Vector3.ProjectOnPlane(rotation * Vector3.up, direction);
     }
 
+    public static Vector3 GetEulerAngles(Vector3 up, Vector3 forward) {
+        Vector3 euler = new Vector3();
+        euler.y = Mathf.Rad2Deg * Mathf.Atan2(forward.x, forward.z);
+
+        Vector3 xzDirection = forward;
+        xzDirection.y = 0;
+        euler.x = -Mathf.Rad2Deg * Mathf.Atan2(forward.y, xzDirection.magnitude);
+
+        Vector3 perpendicular = Vector3.Cross(Vector3.up, xzDirection);
+        Vector3 normal = Vector3.Cross(forward, perpendicular);
+        if (Vector3.Angle(perpendicular, up) < 90)
+            euler.z = 360 - Vector3.Angle(normal, up);
+        else
+            euler.z = Vector3.Angle(normal, up);
+
+        return euler;
+    }
+
     public float GetArcLength() {
         return arcLengthTable[arcLengthTable.Length - 1];
     }
@@ -128,5 +151,25 @@ public class Spline {
             }
         }
         arcLengthTable[arcLengthTable.Length - 1] = arcLengthTable[arcLengthTable.Length - 2] + (points[points.Count - 1].GetAnchorPosition() - lastPos).magnitude;
+    }
+
+    public void SetSettings (SplineSettings _settings) {
+        settings = _settings;
+        assetIsActive = new bool[settings.generated.Length + settings.objects.Length];
+        for (int i = 0; i < assetIsActive.Length; i++) {
+            assetIsActive[i] = true;
+        }
+    }
+
+    public void SetAssetActive (int index, bool active) {
+        assetIsActive[index] = active;
+    }
+
+    public SplineSettings GetSettings () {
+        return settings;
+    }
+
+    public bool AssetIsActive (int index) {
+        return assetIsActive[index];
     }
 }

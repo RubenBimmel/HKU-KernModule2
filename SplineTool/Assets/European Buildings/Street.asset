@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611b2693f3a3979478f41574d0b2d090, type: 3}
+  m_Name: Street
+  m_EditorClassIdentifier: 
+  generated:
+  - name: Road
+    length: 0.4
+    sides: 4
+    smoothEdges: 0
+    rotation: 45
+    scale: {x: 1, y: 0.05}
+    offset: {x: 0, y: 0}
+    cap: 1
+    material: {fileID: 2100000, guid: 34f2ed786dffe9947b7ae36423f07e99, type: 2}
+  - name: LeftPath
+    length: 0.4
+    sides: 4
+    smoothEdges: 0
+    rotation: 45
+    scale: {x: 0.3, y: 0.1}
+    offset: {x: -0.8, y: 0}
+    cap: 1
+    material: {fileID: 2100000, guid: 2113ddfbea964af478849c499ddd366a, type: 2}
+  - name: RightPath
+    length: 0.4
+    sides: 4
+    smoothEdges: 0
+    rotation: 45
+    scale: {x: 0.3, y: 0.1}
+    offset: {x: 0.8, y: 0}
+    cap: 1
+    material: {fileID: 2100000, guid: 2113ddfbea964af478849c499ddd366a, type: 2}
+  objects:
+  - name: LeftBuilding
+    objectReference: {fileID: 412100, guid: 62b590143d8a1f841b1ff8d5536f0676, type: 2}
+    position: {x: 1.9, y: 0}
+    distance: 2
+    offset: 0.5
+    type: 1
+    rotation: {x: 0, y: 180, z: 0}
+    scale: {x: 0.5, y: 0.5, z: 0.5}
+    constraints: 010100
+  - name: RightBuilding
+    objectReference: {fileID: 412100, guid: 62b590143d8a1f841b1ff8d5536f0676, type: 2}
+    position: {x: -1.9, y: 0}
+    distance: 2
+    offset: 0.5
+    type: 1
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0.5, y: 0.5, z: 0.5}
+    constraints: 010100
+  - name: LeftStreetLamp
+    objectReference: {fileID: 481480, guid: 82b7428176cbcbf40bd7b2be6787397d, type: 2}
+    position: {x: -0.6, y: 0}
+    distance: 2
+    offset: 0.8
+    type: 0
+    rotation: {x: 0, y: -90, z: 0}
+    scale: {x: 0.5, y: 0.5, z: 0.5}
+    constraints: 010100
+  - name: RightStreetLamp
+    objectReference: {fileID: 481480, guid: 82b7428176cbcbf40bd7b2be6787397d, type: 2}
+    position: {x: 0.6, y: 0}
+    distance: 2
+    offset: 0.8
+    type: 0
+    rotation: {x: 0, y: 90, z: 0}
+    scale: {x: 0.5, y: 0.5, z: 0.5}
+    constraints: 010100

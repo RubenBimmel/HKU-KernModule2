@@ -18,7 +18,7 @@ MonoBehaviour:
     smoothEdges: 1
     rotation: 0
     scale: {x: 0.005, y: 0.005}
-    offset: {x: 0.07, y: -0.1}
+    offset: {x: 0.07, y: -0.2}
     cap: 1
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   - name: 
@@ -27,7 +27,7 @@ MonoBehaviour:
     smoothEdges: 1
     rotation: 0
     scale: {x: 0.005, y: 0.005}
-    offset: {x: -0.07, y: -0.1}
+    offset: {x: -0.07, y: -0.2}
     cap: 1
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   - name: 
@@ -36,12 +36,12 @@ MonoBehaviour:
     smoothEdges: 0
     rotation: 45
     scale: {x: 0.05, y: 0.04}
-    offset: {x: 0, y: -0.15}
+    offset: {x: 0, y: -0.25}
     cap: 1
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   objects:
   - objectReference: {fileID: 400000, guid: a6c0765ec98903c44b05238b39f7df1a, type: 3}
-    position: {x: 0, y: -0.1}
+    position: {x: 0, y: -0.2}
     distance: 0.1
     rotation: {x: 0, y: 0, z: 0}
     scale: {x: 10, y: 10, z: 10}

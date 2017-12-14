@@ -290,7 +290,7 @@ public class SplineComponentEditor : Editor {
 
     // Draw the fins that show the angle and orientation of a spline
     private void ShowAngles(int spline) {
-        Vector3 lineStart = component.GetPoint(spline, 0f);
+        /*Vector3 lineStart = component.GetPoint(spline, 0f);
         Gizmos.color = Color.cyan;
         for (float i = stepSize; i <= component.GetArcLength(spline); i += stepSize) {
             Vector3 lineEnd = component.GetPoint(spline, i);
@@ -304,7 +304,7 @@ public class SplineComponentEditor : Editor {
             Handles.DrawLine(lineStart + finSize * right, lineEnd);
             Handles.DrawLine(lineStart, lineStart + finSize * right);
             lineStart = lineEnd;
-        }
+        }*/
     }
 
     public override void OnInspectorGUI() {
