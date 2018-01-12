@@ -10,8 +10,7 @@ public class Spline {
     public string name;
     [SerializeField]
     private SplineSettings settings;
-    [SerializeField]
-    private bool[] assetIsActive;
+    public bool[] assetIsActive;
 
     private float[] arcLengthTable;
     private static int tableSize = 100;
@@ -23,6 +22,8 @@ public class Spline {
         };
         ResetArcLengthTable();
         name = string.Concat("Spline_", index.ToString("D2"));
+        settings = null;
+        assetIsActive = null;
     }
 
     public void AddControlPoint () {
@@ -153,7 +154,7 @@ public class Spline {
         arcLengthTable[arcLengthTable.Length - 1] = arcLengthTable[arcLengthTable.Length - 2] + (points[points.Count - 1].GetAnchorPosition() - lastPos).magnitude;
     }
 
-    public void SetSettings (SplineSettings _settings) {
+    public void SetSettings(SplineSettings _settings) {
         settings = _settings;
         assetIsActive = new bool[settings.generated.Length + settings.objects.Length];
         for (int i = 0; i < assetIsActive.Length; i++) {
@@ -161,15 +162,7 @@ public class Spline {
         }
     }
 
-    public void SetAssetActive (int index, bool active) {
-        assetIsActive[index] = active;
-    }
-
-    public SplineSettings GetSettings () {
+    public SplineSettings GetSettings() {
         return settings;
-    }
-
-    public bool AssetIsActive (int index) {
-        return assetIsActive[index];
     }
 }

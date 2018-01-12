@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
 
@@ -138,6 +141,10 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return splines[index].GetSettings();
     }
 
+    public bool[] GetActiveAssets (int index) {
+        return splines[index].assetIsActive;
+    }
+
     //This function should be used instead directly in the control point to be able to move connected points
     public void SetAnchorPosition (int spline, int index, Vector3 position) {
         ControlPoint point = splines[spline].points[index];
@@ -256,6 +263,10 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         UpdateSpline(index);
     }
 
+    public void SetActiveAssets (int index, bool[] active) {
+        splines[index].assetIsActive = active;
+    }
+
     public void AddSpline(int spline, int index) {
         ControlPoint point = splines[spline].points[index];
         splines.Add(new Spline(point.GetAnchorPosition(), splineCount));
@@ -302,7 +313,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public void UpdateSpline (int index) {
         splines[index].ResetArcLengthTable();
-        if (GetSplineSettings(index)) {
+        if (splines[index].GetSettings() != null) {
             ApplySettings(index);
         } else {
             ClearBranch(index);
@@ -311,7 +322,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public void UpdateSpline(SplineSettings settings) {
         for (int i = 0; i < splineCount; i++) {
-            if (GetSplineSettings(i) == settings) {
+            if (splines[i].GetSettings() == settings) {
                 UpdateSpline(i);
             }
         }
@@ -378,7 +389,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             splineParent = AddGeneratedBranch(index);
         }
         for (int i = 0; i < settings.generated.Length; i++) {
-            if (splines[index].AssetIsActive(i)) {
+            if (splines[index].assetIsActive[i]) {
                 string name = settings.generated[i].name;
                 if (name.Length == 0) {
                     name = string.Concat("Generated Mesh ", i.ToString("D2"));
@@ -401,7 +412,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
 
         for (int i = 0; i < settings.objects.Length; i++) {
-            if (splines[index].AssetIsActive(settings.generated.Length + i) && GetSplineSettings(index).objects[i] != null) {
+            if (splines[index].assetIsActive[settings.generated.Length + i] && GetSplineSettings(index).objects[i] != null) {
                 string name = settings.objects[i].name;
                 if (name.Length == 0) {
                     name = settings.objects[i].objectReference.name;
@@ -481,6 +492,52 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                 DestroyImmediate(child.gameObject);
                 Resources.UnloadUnusedAssets();
             }
+        }
+    }
+
+    public void SaveInfo(string path) {
+        BinaryFormatter bf = new BinaryFormatter();
+
+        SurrogateSelector ss = new SurrogateSelector();
+        Vector3SerializationSurrogate v3ss = new Vector3SerializationSurrogate();
+        SplineSettingsSerializationSurrogate ssss = new SplineSettingsSerializationSurrogate();
+        ss.AddSurrogate(typeof(Vector3),
+                        new StreamingContext(StreamingContextStates.All),
+                        v3ss);
+        ss.AddSurrogate(typeof(SplineSettings),
+                        new StreamingContext(StreamingContextStates.All),
+                        ssss);
+        bf.SurrogateSelector = ss;
+
+        FileStream file = File.Create(path);
+        bf.Serialize(file, splines);
+        bf.Serialize(file, connectedPoints);
+        file.Close();
+    }
+
+    public void LoadInfo(string path) {
+
+        if (File.Exists(path)) {
+            BinaryFormatter bf = new BinaryFormatter();
+
+            SurrogateSelector ss = new SurrogateSelector();
+            Vector3SerializationSurrogate v3ss = new Vector3SerializationSurrogate();
+            SplineSettingsSerializationSurrogate ssss = new SplineSettingsSerializationSurrogate();
+            ss.AddSurrogate(typeof(Vector3),
+                            new StreamingContext(StreamingContextStates.All),
+                            v3ss);
+            ss.AddSurrogate(typeof(SplineSettings),
+                            new StreamingContext(StreamingContextStates.All),
+                            ssss);
+            bf.SurrogateSelector = ss;
+
+            FileStream file = File.Open(path, FileMode.Open);
+            splines = (List<Spline>)bf.Deserialize(file);
+            connectedPoints = (List<ControlPoint>)bf.Deserialize(file);
+            file.Close();
+
+            OnAfterDeserialize();
+            ResetGeneratedContent();
         }
     }
 }

@@ -110,22 +110,6 @@ public class ControlPoint {
     }
 
     public Vector3 GetEulerAngles () {
-        /*Vector3 euler = new Vector3();
-        euler.y = Mathf.Rad2Deg * Mathf.Atan2(handles[1].x, handles[1].z);
-
-        Vector3 xzDirection = handles[1];
-        xzDirection.y = 0;
-        euler.x = -Mathf.Rad2Deg * Mathf.Atan2(handles[1].y, xzDirection.magnitude);
-
-        Vector3 perpendicular = Vector3.Cross(Vector3.up, xzDirection);
-        Vector3 normal = Vector3.Cross(handles[1], perpendicular);
-        if (Vector3.Angle(perpendicular, up) < 90)
-            euler.z = 360 - Vector3.Angle(normal, up);
-        else
-            euler.z = Vector3.Angle(normal, up);
-        
-        return euler; */
-
         return Spline.GetEulerAngles(up, handles[1]);
     }
 }

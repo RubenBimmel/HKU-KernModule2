@@ -22,12 +22,32 @@ public class SplineComponentEditor : Editor {
     private int selectedHandle = 0;
     private int activeSpline = -1;
 
-    private const float stepSize = .2f;
-    private const float finSize = .03f;
+    private bool assetsAreActive;
 
     [MenuItem("CONTEXT/SplineComponent/Reset generated content")]
     public static void ResetGeneratedContent () {
         component.ResetGeneratedContent();
+    }
+
+    [MenuItem("CONTEXT/SplineComponent/Save spline")]
+    public static void SaveSpline() {
+        string path = EditorUtility.SaveFilePanel("Save Spline", "Assets/SplineTool/SavedSplines/", component.name, "spline");
+        if (path != null) {
+            component.SaveInfo(path);
+        }
+    }
+
+    [MenuItem("CONTEXT/SplineComponent/Open spline")]
+    public static void OpenSpline() {
+        if (EditorUtility.DisplayDialog("Open spline", 
+            "This will load another spline to this object and replace all of the current data. This action can not be undone. Are you sure you want to continue?", 
+            "Continue", 
+            "Cancel")) {
+            string path = EditorUtility.OpenFilePanel("Save Spline", "Assets/", "spline");
+            if (path != null) {
+                component.LoadInfo(path);
+            }
+        }
     }
 
     // Draw splines and handles
@@ -74,21 +94,15 @@ public class SplineComponentEditor : Editor {
                         ShowControlPoint(i, j);
                         break;
                     case 1:
-                        ShowSimplePoint(i, j);
-                        break;
-                    case 2:
                         if (component.GetConnectedIndex(i, j) >= 0)
                             ShowSimplePoint(i, j);
                         break;
-                    case 3:
+                    case 2:
                         ShowSplinePoint(i);
                         break;
                 }
             }
         }
-
-        if (activeSpline >= 0 && tool != 1 && tool != 2)
-            ShowAngles(activeSpline);
     }
 
     // Generate ControlPoint positions
@@ -197,7 +211,7 @@ public class SplineComponentEditor : Editor {
 
     // Generate ControlPoint positions
     private void ShowSplinePoint(int spline) {
-        Vector3 point = component.GetPoint(spline, .5f * component.GetArcLength(spline));
+        Vector3 point = component.GetPoint(spline, 0.5f * component.GetArcLength(spline));
         bool selected = (spline == activeSpline);
 
         float size = HandleUtility.GetHandleSize(point);
@@ -288,28 +302,9 @@ public class SplineComponentEditor : Editor {
         }
     }
 
-    // Draw the fins that show the angle and orientation of a spline
-    private void ShowAngles(int spline) {
-        /*Vector3 lineStart = component.GetPoint(spline, 0f);
-        Gizmos.color = Color.cyan;
-        for (float i = stepSize; i <= component.GetArcLength(spline); i += stepSize) {
-            Vector3 lineEnd = component.GetPoint(spline, i);
-            Handles.color = new Color(.2f, 1, .2f);
-            Vector3 up = component.GetUp(spline, i - stepSize);
-            Handles.DrawLine(lineStart + finSize * up, lineEnd);
-            Handles.DrawLine(lineStart, lineStart + finSize * up);
-            Handles.color = new Color(1, .2f, .2f);
-            Vector3 forward = component.GetDirection(spline, i - stepSize);
-            Vector3 right = Vector3.Cross(up, forward).normalized;
-            Handles.DrawLine(lineStart + finSize * right, lineEnd);
-            Handles.DrawLine(lineStart, lineStart + finSize * right);
-            lineStart = lineEnd;
-        }*/
-    }
-
     public override void OnInspectorGUI() {
         component = target as SplineComponent;
-        int newtool = GUILayout.Toolbar(tool, new string[] { "Edit", "Multi", "Junction", "Spline" });
+        int newtool = GUILayout.Toolbar(tool, new string[] { "Edit", "Junction", "Spline" });
         if (tool != newtool) {
             tool = newtool;
             if (tool >= 2) {
@@ -325,12 +320,9 @@ public class SplineComponentEditor : Editor {
                 DrawEditInspector();
                 break;
             case 1:
-                GUILayout.Label("Not available");
-                break;
-            case 2:
                 DrawJunctionInspector();
                 break;
-            case 3:
+            case 2:
                 DrawSplineInspector();
                 break;
         }
@@ -540,6 +532,25 @@ public class SplineComponentEditor : Editor {
 
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
+
+            if (settings != null) {
+                GUILayout.Label("Active assets:");
+                EditorGUI.indentLevel++;
+
+                bool[] ActiveAssets = component.GetActiveAssets(activeSpline);
+                EditorGUI.BeginChangeCheck();
+                for (int i = 0; i < ActiveAssets.Length; i++) {
+                    ActiveAssets[i] = EditorGUILayout.Toggle(settings.getName(i), ActiveAssets[i]);
+                }
+                if (EditorGUI.EndChangeCheck()) {
+                    Undo.RecordObject(component, "Change active assets");
+                    EditorUtility.SetDirty(component);
+                    component.SetActiveAssets(activeSpline, ActiveAssets);
+                    ResetGeneratedContent();
+                }
+                EditorGUI.indentLevel--;
+                EditorGUILayout.Space();
+            }
         }
     }
 }

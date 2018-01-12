@@ -16,4 +16,15 @@ public class SplineSettingsEditor : Editor {
             }
         }
     }
+
+    [UnityEditor.Callbacks.OnOpenAsset(1)]
+    public static bool OnOpenAsset(int instanceID, int line) {
+        SplineSettings settings = Selection.activeObject as SplineSettings;
+        if (settings != null) {
+            SplineSettingsEditorWindow.Init(settings);
+            return true; //catch open file
+        }
+
+        return false; // let unity open the file
+    }
 }

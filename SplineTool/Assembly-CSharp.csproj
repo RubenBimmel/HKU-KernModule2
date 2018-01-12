@@ -51,14 +51,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\SplineTool\Bezier.cs" />
-     <Compile Include="Assets\SplineTool\ControlPoint.cs" />
-     <Compile Include="Assets\SplineTool\GeneratedMesh.cs" />
-     <Compile Include="Assets\SplineTool\ObjectPlacer.cs" />
-     <Compile Include="Assets\SplineTool\Spline.cs" />
-     <Compile Include="Assets\SplineTool\SplineAsset.cs" />
-     <Compile Include="Assets\SplineTool\SplineComponent.cs" />
-     <Compile Include="Assets\SplineTool\SplineSettings.cs" />
+     <Compile Include="Assets\SplineTool\AssetGenerator\GeneratedMesh.cs" />
+     <Compile Include="Assets\SplineTool\AssetGenerator\ObjectPlacer.cs" />
+     <Compile Include="Assets\SplineTool\AssetGenerator\SplineAsset.cs" />
+     <Compile Include="Assets\SplineTool\AssetGenerator\SplineSettings.cs" />
+     <Compile Include="Assets\SplineTool\AssetGenerator\SplineSettingsEditorWindow.cs" />
+     <Compile Include="Assets\SplineTool\Splines\Bezier.cs" />
+     <Compile Include="Assets\SplineTool\Splines\ControlPoint.cs" />
+     <Compile Include="Assets\SplineTool\Splines\Serializers.cs" />
+     <Compile Include="Assets\SplineTool\Splines\Spline.cs" />
+     <Compile Include="Assets\SplineTool\Splines\SplineComponent.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
