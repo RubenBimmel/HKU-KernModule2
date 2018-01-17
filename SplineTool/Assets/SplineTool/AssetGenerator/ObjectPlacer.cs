@@ -9,7 +9,8 @@ public enum offsetType {
 }
 
 [Serializable]
-public class ObjectPlacer : SplineAsset {
+public class ObjectPlacer {
+    public string name;
     public Transform objectReference;
     public Vector2 position = Vector2.zero;
     [Range(0.05f, 4f)]

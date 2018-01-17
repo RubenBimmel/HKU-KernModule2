@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611b2693f3a3979478f41574d0b2d090, type: 3}
+  m_Name: Path
+  m_EditorClassIdentifier: 
+  generated:
+  - name: Path
+    length: 0.5
+    sides: 4
+    smoothEdges: 0
+    rotation: 45
+    scale: {x: 0.3, y: 0.05}
+    offset: {x: 0, y: -0.025}
+    cap: 1
+    material: {fileID: 2100000, guid: 550d7603b14e9b749b0b3d786dc492e6, type: 2}
+  placers:
+  - name: LeftLamp
+    objectReference: {fileID: 419664, guid: 346ebb5e7b6d3a546bef70fe0f461b56, type: 2}
+    position: {x: 0.45, y: 0}
+    distance: 4
+    offset: 1
+    type: 0
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0.6, y: 0.6, z: 0.6}
+    constraints: 000100
+  - name: RightLamp
+    objectReference: {fileID: 419664, guid: 346ebb5e7b6d3a546bef70fe0f461b56, type: 2}
+    position: {x: -0.45, y: 0}
+    distance: 4
+    offset: 3
+    type: 0
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0.6, y: 0.6, z: 0.6}
+    constraints: 000100
+  - name: LeftBench
+    objectReference: {fileID: 432628, guid: ad215a145679c054ebdefa69f036483e, type: 2}
+    position: {x: 0.3, y: 0}
+    distance: 2
+    offset: 2
+    type: 0
+    rotation: {x: 0, y: 90, z: 0}
+    scale: {x: 0.6, y: 0.6, z: 0.6}
+    constraints: 000100
+  - name: RightBench
+    objectReference: {fileID: 432628, guid: ad215a145679c054ebdefa69f036483e, type: 2}
+    position: {x: -0.3, y: 0}
+    distance: 2
+    offset: 2
+    type: 0
+    rotation: {x: 0, y: -90, z: 0}
+    scale: {x: 0.6, y: 0.6, z: 0.6}
+    constraints: 000100
+  - name: LeftTree
+    objectReference: {fileID: 400000, guid: c91c1eb85782d5748ace27eb4d7415bb, type: 3}
+    position: {x: 0.72, y: 0}
+    distance: 2.3
+    offset: 2.09
+    type: 0
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0.1, y: 0.1, z: 0.1}
+    constraints: 000100
+  - name: RightTree
+    objectReference: {fileID: 400000, guid: c91c1eb85782d5748ace27eb4d7415bb, type: 3}
+    position: {x: -0.72, y: 0}
+    distance: 2.35
+    offset: 2.09
+    type: 0
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 0.1, y: 0.1, z: 0.1}
+    constraints: 000100

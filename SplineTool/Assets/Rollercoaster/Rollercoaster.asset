@@ -39,13 +39,23 @@ MonoBehaviour:
     offset: {x: 0, y: -0.25}
     cap: 1
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
-  objects:
+  placers:
   - name: Connector
     objectReference: {fileID: 400000, guid: a6c0765ec98903c44b05238b39f7df1a, type: 3}
     position: {x: 0, y: -0.2}
     distance: 0.1
-    offset: 0
+    offset: 0.05
     type: 0
     rotation: {x: 0, y: 0, z: 0}
     scale: {x: 10, y: 10, z: 10}
     constraints: 010101
+  - name: Support
+    objectReference: {fileID: 4186121599945520, guid: 548412843ac286643b416ed19674c92b,
+      type: 2}
+    position: {x: 0, y: -0.27}
+    distance: 1.5
+    offset: 0.25
+    type: 0
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    constraints: 000100

@@ -539,8 +539,11 @@ public class SplineComponentEditor : Editor {
 
                 bool[] ActiveAssets = component.GetActiveAssets(activeSpline);
                 EditorGUI.BeginChangeCheck();
-                for (int i = 0; i < ActiveAssets.Length; i++) {
-                    ActiveAssets[i] = EditorGUILayout.Toggle(settings.getName(i), ActiveAssets[i]);
+                for (int i = 0; i < settings.generated.Count; i++) {
+                    ActiveAssets[i] = EditorGUILayout.Toggle(settings.generated[i].name, ActiveAssets[i]);
+                }
+                for (int i = 0; i < settings.placers.Count; i++) {
+                    ActiveAssets[i + settings.generated.Count] = EditorGUILayout.Toggle(settings.placers[i].name, ActiveAssets[i + settings.generated.Count]);
                 }
                 if (EditorGUI.EndChangeCheck()) {
                     Undo.RecordObject(component, "Change active assets");

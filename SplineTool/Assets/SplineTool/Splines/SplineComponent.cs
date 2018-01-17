@@ -323,6 +323,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     public void UpdateSpline(SplineSettings settings) {
         for (int i = 0; i < splineCount; i++) {
             if (splines[i].GetSettings() == settings) {
+                SetSplineSettings(i, settings);
                 UpdateSpline(i);
             }
         }
@@ -388,100 +389,124 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         if (splineParent == null) {
             splineParent = AddGeneratedBranch(index);
         }
-        for (int i = 0; i < settings.generated.Length; i++) {
-            if (splines[index].assetIsActive[i]) {
-                string name = settings.generated[i].name;
-                if (name.Length == 0) {
-                    name = string.Concat("Generated Mesh ", i.ToString("D2"));
+        if(settings.assetCount < splineParent.childCount) {
+            foreach(Transform child in splineParent) {
+                string childName = child.name.Split('-')[1];
+                string[] assetNames = settings.GetAssetNames();
+                bool activeAsset = false;
+                for (int i = 0; i < assetNames.Length; i++) {
+                    if(childName == assetNames[i]) {
+                        activeAsset = true;
+                    }
                 }
-                name = string.Concat(i.ToString("D2"), "-", name);
-                Transform newGenerated = splineParent.Find(name);
-                if (newGenerated == null) {
-                    newGenerated = new GameObject().transform;
-                    newGenerated.parent = splineParent;
-                    newGenerated.localPosition = Vector3.zero;
-                    newGenerated.localRotation = Quaternion.identity;
-                    newGenerated.localScale = Vector3.one;
-                    newGenerated.name = name;
-                    newGenerated.gameObject.AddComponent<MeshFilter>();
-                    newGenerated.gameObject.AddComponent<MeshRenderer>();
+                if (!activeAsset) {
+                    DestroyImmediate(child.gameObject);
                 }
-                newGenerated.GetComponent<MeshFilter>().mesh = settings.generated[i].generate(splines[index]);
-                newGenerated.GetComponent<MeshRenderer>().material = settings.generated[i].material;
             }
         }
-
-        for (int i = 0; i < settings.objects.Length; i++) {
-            if (splines[index].assetIsActive[settings.generated.Length + i] && GetSplineSettings(index).objects[i] != null) {
-                string name = settings.objects[i].name;
-                if (name.Length == 0) {
-                    name = settings.objects[i].objectReference.name;
-                }
-                name = string.Concat((settings.generated.Length + i).ToString("D2"), "-", name);
-                Transform objectParent = null;
-                foreach (Transform parent in splineParent) {
-                    if (parent.name == name) {
-                        objectParent = parent;
-                    }
-                }
-                if (objectParent == null) {
-                    objectParent = new GameObject().transform;
-                    objectParent.parent = splineParent;
-                    objectParent.localPosition = Vector3.zero;
-                    objectParent.localRotation = Quaternion.identity;
-                    objectParent.localScale = Vector3.one;
-                    objectParent.name = name;
-                }
-
-                int child = 0;
-                Vector3 lastPosition = Vector3.one * float.MaxValue;
-                for (float j = settings.objects[i].offset;
-                    
-                    j < splines[index].GetArcLength() - settings.objects[i].offset;
-                    j += settings.objects[i].distance) {
-
-                    Transform newObject;
-                    if (objectParent.childCount > child) {
-                        newObject = objectParent.GetChild(child);
-                    }
-                    else {
-                        newObject = (Transform)PrefabUtility.InstantiatePrefab(settings.objects[i].objectReference);
-                        newObject.parent = objectParent;
-                    }
-
-                    Vector3 forward = splines[index].GetDirection(j).normalized;
-                    Vector3 up = splines[index].GetUp(j).normalized;
-                    Vector3 right = Vector3.Cross(forward, up).normalized;
-
-                    Vector3 position = splines[index].GetPoint(j) + right * settings.objects[i].position.x + up * settings.objects[i].position.y;
-                    if (settings.objects[i].type == offsetType.globalDistance) {
-                        if (lastPosition.x < float.MaxValue) {
-                            float realDistance = (lastPosition - position).magnitude;
-                            j += settings.objects[i].distance - realDistance;
-                            forward = splines[index].GetDirection(j).normalized;
-                            up = splines[index].GetUp(j).normalized;
-                            right = Vector3.Cross(forward, up).normalized;
-                            position = splines[index].GetPoint(j) + right * settings.objects[i].position.x + up * settings.objects[i].position.y;
-                        }
-                        lastPosition = position;
-                    }
-
-                    Vector3 splineRotation = Spline.GetEulerAngles(up, forward);
-                    if (!settings.objects[i].constraints[0]) splineRotation.x = 0;
-                    if (!settings.objects[i].constraints[1]) splineRotation.y = 0;
-                    if (!settings.objects[i].constraints[2]) splineRotation.z = 0;
-                    Quaternion rotation = Quaternion.Euler(splineRotation) * Quaternion.Euler(settings.objects[i].rotation);
-
-                    newObject.position = transform.TransformPoint(position);
-                    newObject.rotation = transform.rotation * rotation;
-                    newObject.localScale = settings.objects[i].scale;
-
-                    child++;
-                }
-                while (objectParent.childCount > child) {
-                    DestroyImmediate(objectParent.GetChild(child).gameObject);
-                }
+        for (int i = 0; i < settings.generated.Count; i++) {
+            if (splines[index].assetIsActive[i]) {
+                GenerateMesh(splineParent, settings, index, i);
             }
+        }
+        for (int i = 0; i < settings.placers.Count; i++) {
+            if (splines[index].assetIsActive[settings.generated.Count + i] && settings.placers[i].objectReference != null) {
+                PlaceObjects(splineParent, settings, index, i);
+            }
+        }
+    }
+
+    private void GenerateMesh(Transform splineParent, SplineSettings settings, int spline, int i) {
+        GeneratedMesh meshSettings = settings.generated[i];
+        string name = meshSettings.name;
+        if (name.Length == 0) {
+            name = string.Concat("Generated Mesh ", i.ToString("D2"));
+        }
+        name = string.Concat(i.ToString("D2"), "-", name);
+        Transform newGenerated = splineParent.Find(name);
+        if (newGenerated == null) {
+            newGenerated = new GameObject().transform;
+            newGenerated.parent = splineParent;
+            newGenerated.localPosition = Vector3.zero;
+            newGenerated.localRotation = Quaternion.identity;
+            newGenerated.localScale = Vector3.one;
+            newGenerated.name = name;
+            newGenerated.gameObject.AddComponent<MeshFilter>();
+            newGenerated.gameObject.AddComponent<MeshRenderer>();
+        }
+        newGenerated.GetComponent<MeshFilter>().mesh = meshSettings.generate(splines[spline]);
+        newGenerated.GetComponent<MeshRenderer>().material = meshSettings.material;
+    }
+
+    private void PlaceObjects(Transform splineParent, SplineSettings settings, int spline, int i) {
+        ObjectPlacer objectSettings = settings.placers[i];
+        string name = objectSettings.name;
+        if (name.Length == 0) {
+            name = objectSettings.objectReference.name;
+        }
+        name = string.Concat((settings.generated.Count + i).ToString("D2"), "-", name);
+        Transform objectParent = null;
+        foreach (Transform parent in splineParent) {
+            if (parent.name == name) {
+                objectParent = parent;
+            }
+        }
+        if (objectParent == null) {
+            objectParent = new GameObject().transform;
+            objectParent.parent = splineParent;
+            objectParent.localPosition = Vector3.zero;
+            objectParent.localRotation = Quaternion.identity;
+            objectParent.localScale = Vector3.one;
+            objectParent.name = name;
+        }
+
+        int child = 0;
+        Vector3 lastPosition = Vector3.one * float.MaxValue;
+        for (float j = objectSettings.offset;
+
+            j < splines[spline].GetArcLength() - objectSettings.offset;
+            j += objectSettings.distance) {
+
+            Transform newObject;
+            if (objectParent.childCount > child) {
+                newObject = objectParent.GetChild(child);
+            }
+            else {
+                newObject = (Transform)PrefabUtility.InstantiatePrefab(objectSettings.objectReference);
+                newObject.parent = objectParent;
+            }
+
+            Vector3 forward = splines[spline].GetDirection(j).normalized;
+            Vector3 up = splines[spline].GetUp(j).normalized;
+            Vector3 right = Vector3.Cross(forward, up).normalized;
+
+            Vector3 position = splines[spline].GetPoint(j) + right * objectSettings.position.x + up * objectSettings.position.y;
+            if (objectSettings.type == offsetType.globalDistance) {
+                if (lastPosition.x < float.MaxValue) {
+                    float realDistance = (lastPosition - position).magnitude;
+                    j += objectSettings.distance - realDistance;
+                    forward = splines[spline].GetDirection(j).normalized;
+                    up = splines[spline].GetUp(j).normalized;
+                    right = Vector3.Cross(forward, up).normalized;
+                    position = splines[spline].GetPoint(j) + right * objectSettings.position.x + up * objectSettings.position.y;
+                }
+                lastPosition = position;
+            }
+
+            Vector3 splineRotation = Spline.GetEulerAngles(up, forward);
+            if (!objectSettings.constraints[0]) splineRotation.x = 0;
+            if (!objectSettings.constraints[1]) splineRotation.y = 0;
+            if (!objectSettings.constraints[2]) splineRotation.z = 0;
+            Quaternion rotation = Quaternion.Euler(splineRotation) * Quaternion.Euler(objectSettings.rotation);
+
+            newObject.position = transform.TransformPoint(position);
+            newObject.rotation = transform.rotation * rotation;
+            newObject.localScale = objectSettings.scale;
+
+            child++;
+        }
+        while (objectParent.childCount > child) {
+            DestroyImmediate(objectParent.GetChild(child).gameObject);
         }
     }
 

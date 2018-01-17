@@ -156,7 +156,7 @@ public class Spline {
 
     public void SetSettings(SplineSettings _settings) {
         settings = _settings;
-        assetIsActive = new bool[settings.generated.Length + settings.objects.Length];
+        assetIsActive = new bool[settings.generated.Count + settings.placers.Count];
         for (int i = 0; i < assetIsActive.Length; i++) {
             assetIsActive[i] = true;
         }

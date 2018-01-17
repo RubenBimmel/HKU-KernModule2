@@ -51,11 +51,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Rollercoaster\RollerCoasterSupport.cs" />
      <Compile Include="Assets\SplineTool\AssetGenerator\GeneratedMesh.cs" />
      <Compile Include="Assets\SplineTool\AssetGenerator\ObjectPlacer.cs" />
-     <Compile Include="Assets\SplineTool\AssetGenerator\SplineAsset.cs" />
      <Compile Include="Assets\SplineTool\AssetGenerator\SplineSettings.cs" />
-     <Compile Include="Assets\SplineTool\AssetGenerator\SplineSettingsEditorWindow.cs" />
      <Compile Include="Assets\SplineTool\Splines\Bezier.cs" />
      <Compile Include="Assets\SplineTool\Splines\ControlPoint.cs" />
      <Compile Include="Assets\SplineTool\Splines\Serializers.cs" />

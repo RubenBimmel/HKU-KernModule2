@@ -4,7 +4,8 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class GeneratedMesh : SplineAsset {
+public class GeneratedMesh {
+    public string name;
     [Range(0.05f, 2f)]
     public float length = .1f;
     [Range(3, 12)]
