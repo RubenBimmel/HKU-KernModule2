@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Class that handles all spline calculations. Source: http://catlikecoding.com/unity/tutorials/curves-and-splines/
 public static class Bezier {
 
+    //Returns position for a quadratic curve
     public static Vector3 GetPoint(Vector3 p0, Vector3 p1, Vector3 p2, float t) {
         t = Mathf.Clamp01(t);
         float oneMinusT = 1f - t;
@@ -13,12 +15,14 @@ public static class Bezier {
             t * t * p2;
     }
 
+    //Returns direction for a quadratic curve
     public static Vector3 GetFirstDerivative(Vector3 p0, Vector3 p1, Vector3 p2, float t) {
         return
             2f * (1f - t) * (p1 - p0) +
             2f * t * (p2 - p1);
     }
 
+    //Returns position for a cubic curve
     public static Vector3 GetPoint(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
         t = Mathf.Clamp01(t);
         float oneMinusT = 1f - t;
@@ -29,6 +33,7 @@ public static class Bezier {
             t * t * t * p3;
     }
 
+    //Returns direction for a cubic curve
     public static Vector3 GetFirstDerivative(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
         t = Mathf.Clamp01(t);
         float oneMinusT = 1f - t;

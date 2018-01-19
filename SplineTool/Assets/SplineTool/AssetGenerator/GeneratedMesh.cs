@@ -41,16 +41,21 @@ public class GeneratedMesh {
         material = other.material;
     }
 
-    public Mesh generate (Spline spline) {
+    public Mesh Generate (Spline spline) {
         Mesh mesh = new Mesh();
         mesh.name = string.Concat(spline.name, "_Mesh");
 
+        //Calculate the amount of vertices
         int meshLength = Mathf.FloorToInt(spline.GetArcLength() / length) + 1;
         int vertexRows = smoothEdges ? sides : sides * 2;
         int capVertices = cap ? sides * 2 : 0;
         int capTriangles = cap ? (sides - 2) * 12 : 0;
 
+        //Create vertices and faces
         Vector3[] vertices = new Vector3[meshLength * vertexRows + capVertices];
+        int[] triangles = new int[(meshLength - 1) * sides * 6 + capTriangles];
+
+        //Calculate vertex positions
         for (int i = 0; i < meshLength; i++) {
             Vector3 position = spline.GetPoint(i * length);
             Vector3 forward = spline.GetDirection(i * length).normalized;
@@ -68,6 +73,7 @@ public class GeneratedMesh {
             }
         }
 
+        //Calculate the vertex positions for the cap
         if (cap) {
             for (int i = 0; i < sides; i++) {
                 vertices[meshLength * vertexRows + i] = vertices[i * meshLength];
@@ -75,7 +81,7 @@ public class GeneratedMesh {
             }
         }
 
-        int[] triangles = new int[(meshLength - 1) * sides * 6 + capTriangles];
+        //Generate faces
         for (int i = 0; i < (meshLength -1); i++) {
             for (int j = 0; j < sides; j++) {
                 int offset = 1;
@@ -91,6 +97,7 @@ public class GeneratedMesh {
             }
         }
 
+        //Generate faces for the cap
         if (cap) {
             int start = (meshLength - 1) * sides * 6;
             int vertexStart = meshLength * vertexRows;
@@ -104,6 +111,7 @@ public class GeneratedMesh {
             }
         }
 
+        //Apply vertices and faces
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();

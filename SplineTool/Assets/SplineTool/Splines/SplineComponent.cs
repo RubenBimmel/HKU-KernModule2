@@ -14,9 +14,20 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     [SerializeField]
     private List<Spline> splines;
-    private List<ControlPoint> connectedPoints;
+    private List<ControlPoint> connectedPoints;     //List of all points that are in a junction
     private new Transform transform;
-    private List<List<Transform>> generatedContent;
+
+    //Awake is called when the script instance is being loaded.
+    public void Awake() {
+        transform = gameObject.transform;
+        try {
+            int temp = splineCount;  //Check if this is a valid spline
+        }
+        catch (NullReferenceException) {
+            Reset();
+        }
+        ResetGeneratedContent();
+    }
 
     public void Reset() {
         splines = new List<Spline> {
@@ -26,29 +37,22 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         ResetGeneratedContent();
     }
 
-    public void Awake() {
-        transform = gameObject.transform;
-        try {
-            int temp = splineCount;
-        }
-        catch (NullReferenceException) {
-            Reset();
-        }
-        ResetGeneratedContent();
-    }
-
+    //Get anchor point for a handle
     public Vector3 GetPoint (int spline, int point) {
         return transform.TransformPoint(splines[spline].points[point].GetAnchorPosition());
     }
 
+    //Get a position at arcdistance t
     public Vector3 GetPoint (int spline, float t) {
         return transform.TransformPoint(splines[spline].GetPoint(t));
     }
 
+    //Get a direction at arcdistance t
     public Vector3 GetDirection (int spline, float t) {
         return transform.TransformDirection(splines[spline].GetDirection(t));
     }
 
+    //Get the up vector at arcdistance t
     public Vector3 GetUp (int spline, float t) {
         return transform.TransformDirection(splines[spline].GetUp(t));
     }
@@ -57,6 +61,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return splines[spline].GetArcLength();
     }
 
+    //Find the spline that uses this ControlPoint
     public int GetSpline (ControlPoint point) {
         for (int i = 0; i < splines.Count; i++) {
             if (splines[i].points.Contains(point)) {
@@ -66,6 +71,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return -1;
     }
 
+    //Get index of point in its spline
     public int GetIndex (int spline, ControlPoint point) {
         return splines[spline].points.IndexOf(point);
     }
@@ -80,14 +86,17 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return splines[spline].points.Count;
     }
 
+    //Get rotation of a ControlPoint
     public Quaternion GetRotation (int spline, int point) {
         return transform.rotation * splines[spline].points[point].GetRotation();
     }
 
+    //Get rotation of a ControlPoint in euler angles
     public Vector3 GetEulerAngles (int spline, int point) {
         return transform.eulerAngles + splines[spline].points[point].GetEulerAngles();
     }
 
+    //Get the position of a handle in world space
     public Vector3 GetHandle(int spline, int point, int index) {
         return transform.TransformPoint(splines[spline].points[point].GetHandlePosition(index));
     }
@@ -96,10 +105,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return splines[spline].points[point].GetHandleMagnitude(index);
     }
 
+    //Get the mode of a ControlPoint
     public BezierControlPointMode GetMode (int spline, int point) {
         return splines[spline].points[point].GetMode();
     }
 
+    //Returns the connected index of a controlpoint. This is the index of the first ControlPoint in connectedPoints[] that this point is connected to
     public int GetConnectedIndex (int spline, int point) {
         try {
             return splines[spline].points[point].connectedIndex;
@@ -124,12 +135,14 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return connectedPoints[index];
     }
 
+    //Returns the total amount of connected points
     public int connectedPointCount {
         get {
             return connectedPoints.Count;
         }
     }
 
+    //Returns the amount of points that share the same connectedIndex
     public int GetConnectionPointCount(int connectedIndex) {
         int i = connectedIndex;
         int count = 0;
@@ -140,10 +153,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return count;
     }
 
+    //Returns the index of this point within a junction
     public int GetIndexInConnection (int spline, int point) {
         return connectedPoints.IndexOf(splines[spline].points[point]) - splines[spline].points[point].connectedIndex;
     }
 
+    //Returns the first index of a junction
     public int GetConnectedPointIndex(int index) {
         return connectedPoints[index].connectedIndex;
     }
@@ -160,10 +175,11 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return splines[index].assetIsActive;
     }
 
-    //This function should be used instead directly in the control point to be able to move connected points
     public void SetAnchorPosition (int spline, int index, Vector3 position) {
         ControlPoint point = splines[spline].points[index];
         position = transform.InverseTransformPoint(position);
+
+        //If this point is part of a junction, all points need to be updated
         if (point.connectedIndex >= 0) {
             for (int i = 0; i < connectedPoints.Count; i++) {
                 if (connectedPoints[i].connectedIndex == point.connectedIndex)
@@ -202,6 +218,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         UpdateSpline(spline);
     }
 
+    //Rotates all ControlPoints that are in a junction
     public void RotateConnection (int spline, int point, Quaternion newRotation) {
         int index = GetConnectedIndex(spline, point);
         Quaternion resetRotation = Quaternion.Inverse(splines[spline].points[point].GetRotation());
@@ -217,6 +234,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    //Scale all Controlpoint handles that are in a junction
     public void ScaleConnection (int spline, int point, Vector3 scale) {
         for (int i = 0; i < 3; i++) {
             if (scale[i] < 0f) {
@@ -279,6 +297,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         splines[index].assetIsActive = active;
     }
 
+    //Creates a new spline that shares its first ControlPoint with the given ControlPoint
     public void AddSpline(int spline, int index) {
         ControlPoint point = splines[spline].points[index];
         splines.Add(new Spline(point.GetAnchorPosition(), splineCount));
@@ -289,10 +308,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     public void RemovePoint(int spline, int index) {
         ControlPoint point = splines[spline].points[index];
         if (point != null) {
+            // Check if Controlpoint is in a junction
             int connectedIndex = point.connectedIndex;
             if (connectedIndex >= 0) {
                 connectedPoints.Remove(point);
 
+                //Update the connectedPoints list so that all indices are correct after removing this point
                 int count = 0;
                 ControlPoint lastPoint = null;
                 for (int i = 0; i < connectedPoints.Count; i++) {
@@ -301,6 +322,8 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                         lastPoint = connectedPoints[i];
                     }
                 }
+
+                //If this junction has only one point left it will no longer be a junction
                 if (count == 1) {
                     lastPoint.connectedIndex = -1;
                     connectedPoints.Remove(lastPoint);
@@ -310,6 +333,8 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             UpdateSpline(spline);
         }
 
+        /*If the spline has only one point left, the entire spline will be deleted
+         *The last point is removed first to make sure it is removed safely from its junction*/
         if (splines[spline].points.Count == 1) {
             RemovePoint(spline, 0);
         }
@@ -323,6 +348,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         RemoveGeneratedBranch(index);
     }
 
+    //Resets the splines arclength table and regenerates its procedural objects
     public void UpdateSpline (int index) {
         splines[index].ResetArcLengthTable();
         if (splines[index].GetSettings() != null) {
@@ -332,6 +358,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    //Update each spline that uses a given SplineSettings
     public void UpdateSpline(SplineSettings settings) {
         for (int i = 0; i < splineCount; i++) {
             if (splines[i].GetSettings() == settings) {
@@ -341,9 +368,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    //Method from ISerializationCallbackReceiver
     public void OnBeforeSerialize() {
     }
 
+    //Method from ISerializationCallbackReceiver
+    //Recalculates everything that is not serialized (arclength tables & connectedPoints list)
     public void OnAfterDeserialize() {
         for (int i = 0; i < splineCount; i++) {
             splines[i].ResetArcLengthTable();
@@ -360,6 +390,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         connectedPoints.Sort(delegate (ControlPoint a, ControlPoint b) { return a.connectedIndex.CompareTo(b.connectedIndex); });
     }
 
+    // Clears all generated content and regenerate everything
     public void ResetGeneratedContent() {
         foreach (Transform child in transform) {
             if (child.name.StartsWith("Spline_")) {
@@ -378,6 +409,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         return AddGeneratedBranch(splineCount - 1);
     }
 
+    //Adds a branch in the hierarchy that contains all generated content for a spline at the given index
     private Transform AddGeneratedBranch(int index) {
         Transform newTransform = new GameObject().transform;
         newTransform.parent = transform;
@@ -395,6 +427,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         Resources.UnloadUnusedAssets();
     }
 
+    //Generates all procedural obejcts for a spline
     private void ApplySettings (int index) {
         Transform splineParent = transform.Find(GetSplineName(index));
         SplineSettings settings = GetSplineSettings(index);
@@ -429,6 +462,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    //Generates a mesh along a spline. The mesh is defined in the settings at index i
     private void GenerateMesh(Transform splineParent, SplineSettings settings, int spline, int i) {
         GeneratedMesh meshSettings = settings.generated[i];
         string name = meshSettings.name;
@@ -437,6 +471,8 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
         name = string.Concat(i.ToString("D2"), "-", name);
         Transform newGenerated = splineParent.Find(name);
+
+        //Create a new GameObject if there is none in the current scene
         if (newGenerated == null) {
             newGenerated = new GameObject().transform;
             newGenerated.parent = splineParent;
@@ -447,17 +483,23 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             newGenerated.gameObject.AddComponent<MeshFilter>();
             newGenerated.gameObject.AddComponent<MeshRenderer>();
         }
-        newGenerated.GetComponent<MeshFilter>().mesh = meshSettings.generate(splines[spline]);
+
+        //Update mesh and material
+        newGenerated.GetComponent<MeshFilter>().mesh = meshSettings.Generate(splines[spline]);
         newGenerated.GetComponent<MeshRenderer>().material = meshSettings.material;
     }
 
+    //Places objects along a spline. The object is defined in the settings at index i
     private void PlaceObjects(Transform splineParent, SplineSettings settings, int spline, int i) {
         ObjectPlacer objectSettings = settings.placers[i];
+
         string name = objectSettings.name;
         if (name.Length == 0) {
             name = objectSettings.objectReference.name;
         }
         name = string.Concat((settings.generated.Count + i).ToString("D2"), "-", name);
+
+        //Get branch transform for current object, or create one if it does not exist
         Transform objectParent = null;
         foreach (Transform parent in splineParent) {
             if (parent.name == name) {
@@ -475,11 +517,13 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
         int child = 0;
         Vector3 lastPosition = Vector3.one * float.MaxValue;
-        for (float j = objectSettings.offset;
 
+        //Loop along the length of the spline
+        for (float j = objectSettings.offset;
             j < splines[spline].GetArcLength() - objectSettings.offset;
             j += objectSettings.distance) {
 
+            //Get the transform of the child, or create one if it does not exist
             Transform newObject;
             if (objectParent.childCount > child) {
                 newObject = objectParent.GetChild(child);
@@ -490,13 +534,16 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                 newObject.gameObject.hideFlags = HideFlags.DontSaveInEditor;
             }
 
+            //Calculate the position of this child
             Vector3 forward = splines[spline].GetDirection(j).normalized;
             Vector3 up = splines[spline].GetUp(j).normalized;
             Vector3 right = Vector3.Cross(forward, up).normalized;
             Vector3 position = splines[spline].GetPoint(j) + right * objectSettings.position.x + up * objectSettings.position.y;
 
+            //When type is set to global distance, the position needs to be recalculated
             if (objectSettings.type == offsetType.globalDistance) {
                 if (lastPosition.x < float.MaxValue) {
+                    //To fix the distance, it gets devided by the distance it had using the arcDistance calculation
                     float realDistance = (lastPosition - position).magnitude;
                     j += objectSettings.distance / realDistance;
 
@@ -508,12 +555,14 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                 lastPosition = position;
             }
 
+            //Calculate rotation
             Vector3 splineRotation = Spline.GetEulerAngles(up, forward);
             if (!objectSettings.constraints[0]) splineRotation.x = 0;
             if (!objectSettings.constraints[1]) splineRotation.y = 0;
             if (!objectSettings.constraints[2]) splineRotation.z = 0;
             Quaternion rotation = Quaternion.Euler(splineRotation) * Quaternion.Euler(objectSettings.rotation);
 
+            //Calculate scale
             Vector3 scale = objectSettings.objectReference.localScale;
             scale.Scale(objectSettings.scale);
 
@@ -523,6 +572,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
             child++;
         }
+        // Loop through all remaining children and delete them if they are no longer on the spline
         while (objectParent.childCount > child) {
             DestroyImmediate(objectParent.GetChild(child).gameObject);
         }
@@ -538,6 +588,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    //Save spline as a binary file
     public void SaveInfo(string path) {
         BinaryFormatter bf = new BinaryFormatter();
 
@@ -558,6 +609,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         file.Close();
     }
 
+    //Load spline
     public void LoadInfo(string path) {
 
         if (File.Exists(path)) {
@@ -584,6 +636,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    //Export spline to JSon (used for the buddysystem)
     public void ExportJson(string path) {
         string str = JsonHelper.ToJson<Spline>(splines.ToArray(), true);
         using (FileStream fs = new FileStream(path, FileMode.Create)) {
@@ -593,6 +646,8 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
         }
     }
 
+    /*Import XML (used for buddysystem)
+     *This method is written to import a XML file exported by the tool created by Daan van Westerlaak*/
     public void ImportXML(string path) {
         XmlDocument newXml = new XmlDocument();
         newXml.Load(path);
@@ -603,7 +658,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
             Vector3[] point = new Vector3[nodeList.Count];
 
-            //Store midpoints from all triangles in a list of vectors
+            //Calculate midpoints from all triangles
             for (int i = 0; i < nodeList.Count; i++) {
                 float x = float.Parse(nodeList.Item(i).ChildNodes[0].ChildNodes[0].InnerText);
                 float y = float.Parse(nodeList.Item(i).ChildNodes[0].ChildNodes[1].InnerText);

@@ -10,11 +10,12 @@ public class Spline {
     public string name;
     [SerializeField]
     private SplineSettings settings;
-    public bool[] assetIsActive;
+    public bool[] assetIsActive;        //Bools to set assets in the settings on or of for this spline
 
-    private float[] arcLengthTable;
-    private static int tableSize = 100;
+    private float[] arcLengthTable;     //Contains a list of lengths between parametric values of the bezier curves. It is used to get a point at a distance along the spline.
+    private static int tableSize = 100; //Precision value for the table
 
+    //Constructor
     public Spline() {
         points = new List<ControlPoint> {
             new ControlPoint(Vector3.forward, Vector3.forward),
@@ -26,6 +27,7 @@ public class Spline {
         assetIsActive = null;
     }
 
+    //Constructor using position and index in component
     public Spline(Vector3 position, int index) {
         points = new List<ControlPoint> {
             new ControlPoint(position, Vector3.forward),
@@ -37,8 +39,11 @@ public class Spline {
         assetIsActive = null;
     }
 
+    //Add a new controlpoint in front of the spline with the same direction as the last point
     public void AddControlPoint () {
-        points.Add(new ControlPoint(points[points.Count - 1].GetAnchorPosition() + points[points.Count - 1].GetRelativeHandlePosition(1).normalized, .5f * points[points.Count - 1].GetRelativeHandlePosition(1).normalized));
+        points.Add(new ControlPoint(
+            points[points.Count - 1].GetAnchorPosition() + points[points.Count - 1].GetRelativeHandlePosition(1).normalized, //Position
+            .5f * points[points.Count - 1].GetRelativeHandlePosition(1).normalized));                                        //Direction
         ResetArcLengthTable();
     }
 
@@ -47,6 +52,7 @@ public class Spline {
         ResetArcLengthTable();
     }
 
+    //Insert a point between two other points, or before the first point
     public void InsertControlPoint (int index) {
         Vector3 newAnchor = new Vector3();
         Vector3 newDirection = new Vector3();
@@ -65,19 +71,7 @@ public class Spline {
         ResetArcLengthTable();
     }
 
-    private float GetArcPos (float t) {
-        for (int i = 0; i < arcLengthTable.Length; i++) {
-            if (arcLengthTable[i] > t) {
-                float T1 = (float)(i - 1) / (float)tableSize;
-                float T2 = (float)(i) / (float)tableSize;
-                float dT = (t - arcLengthTable[i - 1]) / (arcLengthTable[i] - arcLengthTable[i - 1]);
-                return Mathf.Lerp(T1, T2, dT);
-            }
-        }
-        return points.Count - 1;
-    }
-
-
+    //Get position on spline at the arcdistance of the entire spline
     public Vector3 GetPoint(float t) {
         t = GetArcPos(t);
 
@@ -91,11 +85,7 @@ public class Spline {
         return GetPoint(curve, t);
     }
 
-    private Vector3 GetPoint(int curve, float t) {
-        return Bezier.GetPoint(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
-            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
-    }
-
+    //Get direction on spline at the arcdistance of the entire spline
     public Vector3 GetDirection(float t) {
         t = GetArcPos(t);
 
@@ -108,11 +98,7 @@ public class Spline {
         return GetDirection(curve, t);
     }
 
-    private Vector3 GetDirection(int curve, float t) {
-        return Bezier.GetFirstDerivative(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
-            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
-    }
-
+    //Get up vector on spline at the arcdistance of the entire spline
     public Vector3 GetUp(float t) {
         t = GetArcPos(t);
 
@@ -123,32 +109,41 @@ public class Spline {
             t = 1;
         }
         Vector3 direction = GetDirection(curve, t);
-        Quaternion rotation = Quaternion.Lerp( points[curve].GetRotation(), points[curve + 1].GetRotation(), t);
+        Quaternion rotation = Quaternion.Lerp(points[curve].GetRotation(), points[curve + 1].GetRotation(), t);
         return Vector3.ProjectOnPlane(rotation * Vector3.up, direction);
     }
 
-    public static Vector3 GetEulerAngles(Vector3 up, Vector3 forward) {
-        Vector3 euler = new Vector3();
-        euler.y = Mathf.Rad2Deg * Mathf.Atan2(forward.x, forward.z);
-
-        Vector3 xzDirection = forward;
-        xzDirection.y = 0;
-        euler.x = -Mathf.Rad2Deg * Mathf.Atan2(forward.y, xzDirection.magnitude);
-
-        Vector3 perpendicular = Vector3.Cross(Vector3.up, xzDirection);
-        Vector3 normal = Vector3.Cross(forward, perpendicular);
-        if (Vector3.Angle(perpendicular, up) < 90)
-            euler.z = 360 - Vector3.Angle(normal, up);
-        else
-            euler.z = Vector3.Angle(normal, up);
-
-        return euler;
+    //Returns the parametric value for the position at arcdistance t
+    private float GetArcPos (float t) {
+        for (int i = 0; i < arcLengthTable.Length; i++) {
+            if (arcLengthTable[i] > t) {
+                float T1 = (float)(i - 1) / (float)tableSize;
+                float T2 = (float)(i) / (float)tableSize;
+                float dT = (t - arcLengthTable[i - 1]) / (arcLengthTable[i] - arcLengthTable[i - 1]);
+                return Mathf.Lerp(T1, T2, dT);
+            }
+        }
+        return points.Count - 1;
     }
 
+    //Get the position for a bezier curve at position t
+    private Vector3 GetPoint(int curve, float t) {
+        return Bezier.GetPoint(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
+            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
+    }
+
+    //Get the direction for a bezier curve at position t
+    private Vector3 GetDirection(int curve, float t) {
+        return Bezier.GetFirstDerivative(points[curve].GetAnchorPosition(), points[curve].GetHandlePosition(1),
+            points[curve + 1].GetHandlePosition(0), points[curve + 1].GetAnchorPosition(), t);
+    }
+
+    //Returns the entire length of this spline
     public float GetArcLength() {
         return arcLengthTable[arcLengthTable.Length - 1];
     }
 
+    //Recaclculates the arcLengthTable
     public void ResetArcLengthTable () {
         arcLengthTable = new float[(points.Count - 1) * tableSize + 1];
         arcLengthTable[0] = 0f;
@@ -175,5 +170,25 @@ public class Spline {
 
     public SplineSettings GetSettings() {
         return settings;
+    }
+
+    /* Static function to calculate the euler angles for a point given its up and forward vector.
+     * This is similar to Quaternion.LookRotation. It calculates x, y and z in a different order that makes more sense for a spline*/
+    public static Vector3 GetEulerAngles(Vector3 up, Vector3 forward) {
+        Vector3 euler = new Vector3();
+        euler.y = Mathf.Rad2Deg * Mathf.Atan2(forward.x, forward.z);
+
+        Vector3 xzDirection = forward;
+        xzDirection.y = 0;
+        euler.x = -Mathf.Rad2Deg * Mathf.Atan2(forward.y, xzDirection.magnitude);
+
+        Vector3 perpendicular = Vector3.Cross(Vector3.up, xzDirection);
+        Vector3 normal = Vector3.Cross(forward, perpendicular);
+        if (Vector3.Angle(perpendicular, up) < 90)
+            euler.z = 360 - Vector3.Angle(normal, up);
+        else
+            euler.z = Vector3.Angle(normal, up);
+
+        return euler;
     }
 }

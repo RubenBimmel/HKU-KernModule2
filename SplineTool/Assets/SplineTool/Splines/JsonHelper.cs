@@ -1,6 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
+/*JSon Helper class to write an arry of elements to JSon. Source:
+https://stackoverflow.com/questions/36239705/serialize-and-deserialize-json-and-json-array-in-unity
+*/
+
 public static class JsonHelper {
     public static T[] FromJson<T>(string json) {
         Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);

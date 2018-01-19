@@ -10,6 +10,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
     private int viewIndex = -1;
     private Vector2 scrollposition = Vector2.zero;
 
+    //Initialize from menu
     [MenuItem("Window/Spline Settings Editor")]
     public static void Init() {
         SplineSettingsEditorWindow window = (SplineSettingsEditorWindow) EditorWindow.GetWindow(typeof(SplineSettingsEditorWindow));
@@ -17,6 +18,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
         window.viewIndex = -1;
     }
 
+    //Initialize from file
     public static void Init(SplineSettings _settings) {
         SplineSettingsEditorWindow window = (SplineSettingsEditorWindow) EditorWindow.GetWindow(typeof(SplineSettingsEditorWindow));
         window.minSize = new Vector2(600, 300);
@@ -28,6 +30,8 @@ public class SplineSettingsEditorWindow : EditorWindow {
         EditorGUI.BeginChangeCheck();
 
         EditorGUILayout.Space();
+
+        //Draw top bar with name and open & close buttons
         GUILayout.BeginHorizontal();
         string name = "No asset selected";
         if (settings != null) {
@@ -41,13 +45,17 @@ public class SplineSettingsEditorWindow : EditorWindow {
             settings = null;
         }
         GUILayout.EndHorizontal();
-
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
+        //Draw editor if a settings asset is selected
         if (settings != null) {
             GUILayout.BeginHorizontal();
+
+            //Left panel
             scrollposition = EditorGUILayout.BeginScrollView(scrollposition, false, true, GUILayout.Width(position.width / 2), GUILayout.Height(position.height - 30));
             string[] names = settings.GetAssetNames();
+
+            //Generated meshes list
             GUILayout.Label("Generated meshes:");
             for (int i = 0; i < settings.generated.Count; i++) {
                 string assetName = "";
@@ -85,6 +93,8 @@ public class SplineSettingsEditorWindow : EditorWindow {
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
+
+            //Object placers list
             GUILayout.Label("Object Placers:");
             for (int i = settings.generated.Count; i < names.Length ; i++) {
                 EditorGUILayout.BeginHorizontal();
@@ -115,6 +125,8 @@ public class SplineSettingsEditorWindow : EditorWindow {
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             EditorGUILayout.EndScrollView();
+
+            //Right panel
             GUILayout.BeginVertical();
             if (viewIndex >= 0 && viewIndex < settings.assetCount) {
                 if (viewIndex < settings.generated.Count) {
@@ -138,6 +150,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
         }
     }
 
+    // Draw the editor for a Generated Mesh
     private void DrawGeneratedMeshSettings (GeneratedMesh meshSettings) {
         meshSettings.name = EditorGUILayout.TextField("Name", meshSettings.name);
         meshSettings.length = EditorGUILayout.Slider("Length", meshSettings.length, 0.05f, 2f);
@@ -150,6 +163,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
         meshSettings.material = (Material) EditorGUILayout.ObjectField("Material", meshSettings.material, typeof(Material), false);
     }
 
+    // Draw the editor for an Object Placer
     private void DrawObjectPlacerSettings(ObjectPlacer objectSettings) {
         objectSettings.name = EditorGUILayout.TextField("Name", objectSettings.name);
         objectSettings.objectReference = (Transform)EditorGUILayout.ObjectField("Object Reference", objectSettings.objectReference, typeof(Transform), false);
@@ -170,6 +184,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
         EditorGUILayout.EndHorizontal();
     }
 
+    //Open a new SplineSettings asset
     private void OpenSplineSettings() {
         string absPath = EditorUtility.OpenFilePanel("Select Spline Settings", "Assets/", "asset");
         if (absPath.StartsWith(Application.dataPath)) {

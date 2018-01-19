@@ -5,8 +5,8 @@ using System;
 using System.Linq;
 
 public enum BezierControlPointMode {
-    Aligned,
-    Mirrored
+    Aligned,    //Handles are allowed to have different magnitudes
+    Mirrored    //Handles both have the same magnitude
 }
 
 [Serializable]
@@ -14,12 +14,12 @@ public class ControlPoint {
     [SerializeField]
     private Vector3 anchor;
     [SerializeField]
-    private Vector3[] handles;
+    private Vector3[] handles;          //handles[0] is the handle before the anchor, handles[1] is the handle after the anchor
     [SerializeField]
-    private Vector3 up;
+    private Vector3 up;                 //Used to store rotations along the splines axis
     [SerializeField]
     private BezierControlPointMode mode;
-    public int connectedIndex;
+    public int connectedIndex;          //Used when ControlPoint is part of a junction. Default value = -1
 
     //Constructor
     public ControlPoint() {
@@ -33,7 +33,7 @@ public class ControlPoint {
         connectedIndex = -1;
     }
 
-    //Constructor with position
+    //Constructor with position and direction
     public ControlPoint(Vector3 position, Vector3 forward) {
         anchor = position;
         handles = new Vector3[2] {
@@ -45,17 +45,14 @@ public class ControlPoint {
         connectedIndex = -1;
     }
 
-    //Get position
     public Vector3 GetAnchorPosition () {
         return anchor;
     }
     
-    //Get handle position
     public Vector3 GetHandlePosition(int index) {
         return anchor + GetRelativeHandlePosition(index);
     }
 
-    //Get relative handle position
     public Vector3 GetRelativeHandlePosition(int index) {
         return handles[index];
     }
@@ -64,20 +61,28 @@ public class ControlPoint {
         return handles[index].magnitude;
     }
 
+    public Quaternion GetRotation() {
+        return Quaternion.LookRotation(handles[1], up);
+    }
+
+    //Euler angles are calculated using the Spline.GetEulerAngles method.
+    public Vector3 GetEulerAngles() {
+        return Spline.GetEulerAngles(up, handles[1]);
+    }
+
     public BezierControlPointMode GetMode() {
         return mode;
     }
 
-    //Set position
     public void SetAnchorPosition(Vector3 position) {
         anchor = position;
     }
 
-    //Set handleposition
     public void SetHandlePosition(int index, Vector3 position) {
         SetRelativeHandlePosition(index, position - anchor);
     }
 
+    //Updates both handle positions based on the new position of a single handle
     public void SetRelativeHandlePosition (int index, Vector3 position) {
         handles[index] = position;
         switch (mode) {
@@ -91,6 +96,7 @@ public class ControlPoint {
         }
     }
 
+    //Set the magnitude of a handle (or both handles when type is mirrored)
     public void SetHandleMagnitude (int index, float magnitude) {
         if (magnitude < .01f)
             magnitude = .01f;
@@ -110,17 +116,10 @@ public class ControlPoint {
         SetRelativeHandlePosition(1, GetRelativeHandlePosition(1));
     }
 
-    public Quaternion GetRotation () {
-        return Quaternion.LookRotation(handles[1], up);
-    }
-
     public void SetRotation (Quaternion rotation) {
         handles[0] = rotation * Vector3.back * handles[0].magnitude;
         handles[1] = rotation* Vector3.forward * handles[1].magnitude;
         up = rotation * Vector3.up;
     }
-
-    public Vector3 GetEulerAngles () {
-        return Spline.GetEulerAngles(up, handles[1]);
-    }
+    
 }

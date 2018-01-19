@@ -22,8 +22,6 @@ public class SplineComponentEditor : Editor {
     private int selectedHandle = 0;
     private int activeSpline = -1;
 
-    private bool assetsAreActive;
-
     [MenuItem("CONTEXT/SplineComponent/Reset generated content")]
     public static void ResetGeneratedContent () {
         component.ResetGeneratedContent();
@@ -87,8 +85,10 @@ public class SplineComponentEditor : Editor {
         }
     }
 
+    // Draw beziers and handles
     private void DrawBeziers() {
         for (int i = 0; i < component.splineCount; i++) {
+            //Draw beziers
             Color bezierColor = Color.cyan;
             float bezierWidth = 2f;
             if (i == activeSpline & tool != 1 && tool != 2) {
@@ -106,6 +106,7 @@ public class SplineComponentEditor : Editor {
                     bezierWidth);
             }
 
+            //Draw handles for current tool
             for (int j = 0; j < component.PointCount(i); j++) {
                 switch (tool) {
                     case -1:
@@ -294,7 +295,7 @@ public class SplineComponentEditor : Editor {
 
     // Draw scale handle
     private void ScaleHandle(int index, Vector3 position) {
-        if (tool == 0) {
+        if (tool == 0) { //Simple 1D scale tool in edit mode
             EditorGUI.BeginChangeCheck();
             Quaternion rotation = component.GetRotation(activeSpline, index);
             float scale = component.GetHandleMagnitude(activeSpline, index, 1);
@@ -308,7 +309,7 @@ public class SplineComponentEditor : Editor {
                 component.SetHandleMagnitude(activeSpline, index, 0, scale2);
             }
         }
-        else {
+        else { //Full scale tool in junction mode
             EditorGUI.BeginChangeCheck();
             Quaternion rotation = Quaternion.identity;
             float scale = component.GetHandleMagnitude(activeSpline, index, 1);

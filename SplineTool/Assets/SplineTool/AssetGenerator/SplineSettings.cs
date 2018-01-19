@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections; 
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -9,6 +9,7 @@ public class SplineSettings : ScriptableObject {
     public List<GeneratedMesh> generated = new List<GeneratedMesh>();
     public List<ObjectPlacer> placers = new List<ObjectPlacer>();
 
+    //Total number of assets 
     public int assetCount {
         get {
             return generated.Count + placers.Count;
@@ -35,8 +36,9 @@ public class SplineSettings : ScriptableObject {
     public void CloneObjectPlacer(int index) {
         ObjectPlacer newPlacer = new ObjectPlacer(placers[index]);
         placers.Insert(index + 1, newPlacer);
-}
+    }
 
+    //Returns an array with the names of all assets
     public string[] GetAssetNames() {
         string[] names = new string[assetCount];
         for (int i = 0; i < generated.Count; i++) {
@@ -48,6 +50,7 @@ public class SplineSettings : ScriptableObject {
         return names;
     }
 
+    //Returns an array with the names of all mesh generaters
     public string[] GetGeneratedNames() {
         string[] names = new string[assetCount];
         for (int i = 0; i < generated.Count; i++) {
@@ -56,6 +59,7 @@ public class SplineSettings : ScriptableObject {
         return names;
     }
 
+    //Returns an array with the names of all object placers
     public string[] GetPlacerNames() {
         string[] names = new string[assetCount];
         for (int i = 0; i < placers.Count; i++) {
