@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 
 public enum BezierControlPointMode {
-    //Free,
     Aligned,
     Mirrored
 }
@@ -21,6 +20,18 @@ public class ControlPoint {
     [SerializeField]
     private BezierControlPointMode mode;
     public int connectedIndex;
+
+    //Constructor
+    public ControlPoint() {
+        anchor = Vector3.zero;
+        handles = new Vector3[2] {
+            -.5f * Vector3.forward,
+            .5f * Vector3.forward
+        };
+        up = Vector3.up;
+        mode = BezierControlPointMode.Mirrored;
+        connectedIndex = -1;
+    }
 
     //Constructor with position
     public ControlPoint(Vector3 position, Vector3 forward) {

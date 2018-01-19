@@ -15,6 +15,17 @@ public class Spline {
     private float[] arcLengthTable;
     private static int tableSize = 100;
 
+    public Spline() {
+        points = new List<ControlPoint> {
+            new ControlPoint(Vector3.forward, Vector3.forward),
+            new ControlPoint(Vector3.forward * 2, Vector3.forward)
+        };
+        ResetArcLengthTable();
+        name = string.Concat("Spline");
+        settings = null;
+        assetIsActive = null;
+    }
+
     public Spline(Vector3 position, int index) {
         points = new List<ControlPoint> {
             new ControlPoint(position, Vector3.forward),

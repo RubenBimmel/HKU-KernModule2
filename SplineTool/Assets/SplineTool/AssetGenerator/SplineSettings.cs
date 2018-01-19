@@ -22,16 +22,7 @@ public class SplineSettings : ScriptableObject {
     }
 
     public void CloneGeneratedMesh(int index) {
-        GeneratedMesh newMesh = new GeneratedMesh();
-        newMesh.name = generated[index].name + " Copy";
-        newMesh.length = generated[index].length;
-        newMesh.sides = generated[index].sides;
-        newMesh.smoothEdges = generated[index].smoothEdges;
-        newMesh.rotation = generated[index].rotation;
-        newMesh.scale = generated[index].scale;
-        newMesh.offset = generated[index].offset;
-        newMesh.cap = generated[index].cap;
-        newMesh.material = generated[index].material;
+        GeneratedMesh newMesh = new GeneratedMesh(generated[index]);
         generated.Insert(index + 1, newMesh);
     }
 
@@ -42,16 +33,7 @@ public class SplineSettings : ScriptableObject {
     }
 
     public void CloneObjectPlacer(int index) {
-        ObjectPlacer newPlacer = new ObjectPlacer();
-        newPlacer.name = placers[index].name + " Copy";
-        newPlacer.objectReference = placers[index].objectReference;
-        newPlacer.position = placers[index].position;
-        newPlacer.distance = placers[index].distance;
-        newPlacer.offset = placers[index].offset;
-        newPlacer.type = placers[index].type;
-        newPlacer.rotation = placers[index].rotation;
-        newPlacer.scale = placers[index].scale;
-        newPlacer.constraints = placers[index].constraints;
+        ObjectPlacer newPlacer = new ObjectPlacer(placers[index]);
         placers.Insert(index + 1, newPlacer);
 }
 

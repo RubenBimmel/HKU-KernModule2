@@ -12,12 +12,37 @@ public enum offsetType {
 public class ObjectPlacer {
     public string name;
     public Transform objectReference;
-    public Vector2 position = Vector2.zero;
-    [Range(0.05f, 4f)]
-    public float distance = .1f;
-    public float offset = 0f;
-    public offsetType type = offsetType.arcDistance;
-    public Vector3 rotation = Vector3.zero;
-    public Vector3 scale = Vector3.one;
-    public bool[] constraints = { true, true, true };
+    public Vector2 position;
+    public float distance;
+    public float offset;
+    public offsetType type;
+    public Vector3 rotation;
+    public Vector3 scale;
+    public bool[] constraints;
+
+    //Constructor
+    public ObjectPlacer() {
+        name = "Object Placer";
+        objectReference = null;
+        position = Vector2.zero;
+        distance = .1f;
+        offset = 0f;
+        type = offsetType.arcDistance;
+        rotation = Vector3.zero;
+        scale = Vector3.one;
+        constraints = new bool[] { true, true, true };
+    }
+
+    //Copy constructor
+    public ObjectPlacer(ObjectPlacer other) {
+        name = other.name + " Clone";
+        objectReference = other.objectReference;
+        position = other.position;
+        distance = other.distance;
+        offset = other.offset;
+        type = other.type;
+        rotation = other.rotation;
+        scale = other.scale;
+        constraints = other.constraints;
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -49,15 +50,23 @@ public class SplineSettingsEditorWindow : EditorWindow {
             string[] names = settings.GetAssetNames();
             GUILayout.Label("Generated meshes:");
             for (int i = 0; i < settings.generated.Count; i++) {
+                string assetName = "";
+                try {
+                    assetName = names[i];
+                }
+                catch (IndexOutOfRangeException) {
+                    //Cloning a asset can take longer then one GUI frame. In this case the amount of names given by GetAssetNames is less then the amount of assets.
+                    //This problem fixes itselve in the next frame.
+                }
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(names[i], GUILayout.Width(position.width / 2 - 215));
+                GUILayout.Label(assetName, GUILayout.Width(position.width / 2 - 215));
                 if (GUILayout.Button("Edit", GUILayout.Width(60))) {
                     viewIndex = i;
                     GUIUtility.keyboardControl = 0;
                 }
                 if (GUILayout.Button("Clone", GUILayout.Width(60))) {
                     settings.CloneGeneratedMesh(i);
-                    viewIndex++;
+                    viewIndex = i + 1;
                     GUIUtility.keyboardControl = 0;
                 }
                 if (GUILayout.Button("Remove", GUILayout.Width(60))) {
@@ -71,7 +80,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
             GUILayout.Label("", GUILayout.Width(position.width / 2 - 87));
             if (GUILayout.Button("Add", GUILayout.Width(60))) {
                 settings.AddGeneratedMesh();
-                viewIndex = settings.generated.Count;
+                viewIndex = settings.generated.Count - 1;
                 GUIUtility.keyboardControl = 0;
             }
             EditorGUILayout.EndHorizontal();
@@ -86,7 +95,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
                 }
                 if (GUILayout.Button("Clone", GUILayout.Width(60))) {
                     settings.CloneObjectPlacer(i - settings.generated.Count);
-                    viewIndex++;
+                    viewIndex = i + 1;
                     GUIUtility.keyboardControl = 0;
                 }
                 if (GUILayout.Button("Remove", GUILayout.Width(60))) {
@@ -100,7 +109,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
             GUILayout.Label("", GUILayout.Width(position.width / 2 - 87));
             if (GUILayout.Button("Add", GUILayout.Width(60))) {
                 settings.AddObjectPlacer();
-                viewIndex = settings.assetCount;
+                viewIndex = settings.assetCount - 1;
                 GUIUtility.keyboardControl = 0;
             }
             EditorGUILayout.EndHorizontal();
@@ -146,7 +155,7 @@ public class SplineSettingsEditorWindow : EditorWindow {
         objectSettings.objectReference = (Transform)EditorGUILayout.ObjectField("Object Reference", objectSettings.objectReference, typeof(Transform), false);
         objectSettings.position = EditorGUILayout.Vector2Field("Position", objectSettings.position);
         objectSettings.distance = EditorGUILayout.Slider("Distance", objectSettings.distance, 0.05f, 4f);
-        objectSettings.offset = EditorGUILayout.FloatField("Offset", objectSettings.offset);
+        objectSettings.offset = EditorGUILayout.FloatField("Offset at start", objectSettings.offset);
         objectSettings.type = (offsetType) EditorGUILayout.EnumPopup("Offset type", objectSettings.type);
         objectSettings.rotation = EditorGUILayout.Vector3Field("Rotation", objectSettings.rotation);
         objectSettings.scale = EditorGUILayout.Vector3Field("Scale", objectSettings.scale);

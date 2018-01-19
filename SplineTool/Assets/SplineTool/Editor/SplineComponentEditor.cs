@@ -50,6 +50,27 @@ public class SplineComponentEditor : Editor {
         }
     }
 
+    [MenuItem("CONTEXT/SplineComponent/Export Json")]
+    public static void ExportJson() {
+        string path = EditorUtility.SaveFilePanel("Export XML", "Assets/SplineTool/SavedSplines/", component.name, "json");
+        if (path != null) {
+            component.ExportJson(path);
+        }
+    }
+
+    [MenuItem("CONTEXT/SplineComponent/Import Buddysytem XML")]
+    public static void ImportXML() {
+        if (EditorUtility.DisplayDialog("Import Buddysytem XML",
+            "This will load another spline to this object and replace all of the current data. This action can not be undone. Are you sure you want to continue?",
+            "Continue",
+            "Cancel")) {
+            string path = EditorUtility.OpenFilePanel("Save Spline", "Assets/", "xml");
+            if (path != null) {
+                component.ImportXML(path);
+            }
+        }
+    }
+
     // Draw splines and handles
     private void OnSceneGUI() {
         component = target as SplineComponent;

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: Rollercoaster
   m_EditorClassIdentifier: 
   generated:
-  - name: Box
+  - name: LeftRail
     length: 0.1
     sides: 6
     smoothEdges: 1
@@ -21,7 +21,7 @@ MonoBehaviour:
     offset: {x: 0.07, y: -0.2}
     cap: 1
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
-  - name: LeftRail
+  - name: RightRail
     length: 0.1
     sides: 6
     smoothEdges: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
     offset: {x: -0.07, y: -0.2}
     cap: 1
     material: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
-  - name: RightRail
+  - name: Box
     length: 0.1
     sides: 4
     smoothEdges: 0
@@ -58,4 +58,4 @@ MonoBehaviour:
     type: 0
     rotation: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
-    constraints: 000100
+    constraints: 010101

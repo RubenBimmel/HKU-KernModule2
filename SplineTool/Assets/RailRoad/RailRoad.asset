@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611b2693f3a3979478f41574d0b2d090, type: 3}
+  m_Name: RailRoad
+  m_EditorClassIdentifier: 
+  generated:
+  - name: LeftRail
+    length: 0.1
+    sides: 4
+    smoothEdges: 0
+    rotation: 45
+    scale: {x: 0.03, y: 0.05}
+    offset: {x: 0.35, y: 0.04}
+    cap: 1
+    material: {fileID: 2100000, guid: 31d0624a2961b3f46975420b74caa8b5, type: 2}
+  - name: RightRail
+    length: 0.1
+    sides: 4
+    smoothEdges: 0
+    rotation: 45
+    scale: {x: 0.03, y: 0.05}
+    offset: {x: -0.35, y: 0.04}
+    cap: 1
+    material: {fileID: 2100000, guid: 31d0624a2961b3f46975420b74caa8b5, type: 2}
+  placers:
+  - name: Object placer 1
+    objectReference: {fileID: 4090480431946410, guid: 523a490dfdee0524886f90737c31a276,
+      type: 2}
+    position: {x: 0, y: 0}
+    distance: 0.51
+    offset: 0.25
+    type: 0
+    rotation: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    constraints: 010101

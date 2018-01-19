@@ -57,9 +57,11 @@
      <Compile Include="Assets\SplineTool\AssetGenerator\SplineSettings.cs" />
      <Compile Include="Assets\SplineTool\Splines\Bezier.cs" />
      <Compile Include="Assets\SplineTool\Splines\ControlPoint.cs" />
+     <Compile Include="Assets\SplineTool\Splines\JsonHelper.cs" />
      <Compile Include="Assets\SplineTool\Splines\Serializers.cs" />
      <Compile Include="Assets\SplineTool\Splines\Spline.cs" />
      <Compile Include="Assets\SplineTool\Splines\SplineComponent.cs" />
+     <None Include="Assets\SplineTool\SavedSplines\Buddysystem.xml" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

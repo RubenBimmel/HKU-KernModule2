@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
@@ -12,7 +14,6 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     [SerializeField]
     private List<Spline> splines;
-    [SerializeField]
     private List<ControlPoint> connectedPoints;
     private new Transform transform;
     private List<List<Transform>> generatedContent;
@@ -27,6 +28,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
 
     public void Awake() {
         transform = gameObject.transform;
+        try {
+            int temp = splineCount;
+        }
+        catch (NullReferenceException) {
+            Reset();
+        }
         ResetGeneratedContent();
     }
 
@@ -94,7 +101,15 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
     }
 
     public int GetConnectedIndex (int spline, int point) {
-        return splines[spline].points[point].connectedIndex;
+        try {
+            return splines[spline].points[point].connectedIndex;
+        }
+        catch (IndexOutOfRangeException) {
+            Debug.LogWarning("Spline index out of range at spline: " + spline + ", point: " + point);
+            //In rare cases, this function produces an out of range error. This should be fixed autmatically in the next GUI frame;
+            //A connectedindex of -1 is the default index and makes the point not part of a junction. Therefor this is the safest way to handle an error like this.
+            return -1;
+        }
     }
 
     //Get a control point connected to point. If there is none it returns point.
@@ -155,7 +170,6 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                     connectedPoints[i].SetAnchorPosition(position);
             }
 
-            // QQQ more effective way?
             for (int i = 0; i < splineCount; i++) {
                 UpdateSpline(i);
             }
@@ -198,7 +212,6 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             }
         }
 
-        // QQQ more effective way?
         for (int i = 0; i < splineCount; i++) {
             UpdateSpline(i);
         }
@@ -217,7 +230,6 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             }
         }
 
-        // QQQ more effective way?
         for (int j = 0; j < splineCount; j++) {
             UpdateSpline(j);
         }
@@ -401,6 +413,7 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
                 }
                 if (!activeAsset) {
                     DestroyImmediate(child.gameObject);
+                    Resources.UnloadUnusedAssets();
                 }
             }
         }
@@ -474,17 +487,19 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             else {
                 newObject = (Transform)PrefabUtility.InstantiatePrefab(objectSettings.objectReference);
                 newObject.parent = objectParent;
+                newObject.gameObject.hideFlags = HideFlags.DontSaveInEditor;
             }
 
             Vector3 forward = splines[spline].GetDirection(j).normalized;
             Vector3 up = splines[spline].GetUp(j).normalized;
             Vector3 right = Vector3.Cross(forward, up).normalized;
-
             Vector3 position = splines[spline].GetPoint(j) + right * objectSettings.position.x + up * objectSettings.position.y;
+
             if (objectSettings.type == offsetType.globalDistance) {
                 if (lastPosition.x < float.MaxValue) {
                     float realDistance = (lastPosition - position).magnitude;
-                    j += objectSettings.distance - realDistance;
+                    j += objectSettings.distance / realDistance;
+
                     forward = splines[spline].GetDirection(j).normalized;
                     up = splines[spline].GetUp(j).normalized;
                     right = Vector3.Cross(forward, up).normalized;
@@ -499,9 +514,12 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             if (!objectSettings.constraints[2]) splineRotation.z = 0;
             Quaternion rotation = Quaternion.Euler(splineRotation) * Quaternion.Euler(objectSettings.rotation);
 
+            Vector3 scale = objectSettings.objectReference.localScale;
+            scale.Scale(objectSettings.scale);
+
             newObject.position = transform.TransformPoint(position);
             newObject.rotation = transform.rotation * rotation;
-            newObject.localScale = objectSettings.scale;
+            newObject.localScale = scale;
 
             child++;
         }
@@ -564,5 +582,71 @@ public class SplineComponent : MonoBehaviour, ISerializationCallbackReceiver {
             OnAfterDeserialize();
             ResetGeneratedContent();
         }
+    }
+
+    public void ExportJson(string path) {
+        string str = JsonHelper.ToJson<Spline>(splines.ToArray(), true);
+        using (FileStream fs = new FileStream(path, FileMode.Create)) {
+            using (StreamWriter writer = new StreamWriter(fs)) {
+                writer.Write("SplineComponent \n" + str);
+            }
+        }
+    }
+
+    public void ImportXML(string path) {
+        XmlDocument newXml = new XmlDocument();
+        newXml.Load(path);
+        XmlNode root = newXml.DocumentElement;
+        XmlNodeList nodeList = root.SelectNodes("(subObjects/DataMeshSubObject/triangles/DataMeshTriangle)");
+
+        if (nodeList.Count >= 2) {
+
+            Vector3[] point = new Vector3[nodeList.Count];
+
+            //Store midpoints from all triangles in a list of vectors
+            for (int i = 0; i < nodeList.Count; i++) {
+                float x = float.Parse(nodeList.Item(i).ChildNodes[0].ChildNodes[0].InnerText);
+                float y = float.Parse(nodeList.Item(i).ChildNodes[0].ChildNodes[1].InnerText);
+                float z = float.Parse(nodeList.Item(i).ChildNodes[0].ChildNodes[2].InnerText);
+                Vector3 p0 = new Vector3(x, y, z);
+
+                x = float.Parse(nodeList.Item(i).ChildNodes[1].ChildNodes[0].InnerText);
+                y = float.Parse(nodeList.Item(i).ChildNodes[1].ChildNodes[1].InnerText);
+                z = float.Parse(nodeList.Item(i).ChildNodes[1].ChildNodes[2].InnerText);
+                Vector3 p1 = new Vector3(x, y, z);
+
+                x = float.Parse(nodeList.Item(i).ChildNodes[1].ChildNodes[0].InnerText);
+                y = float.Parse(nodeList.Item(i).ChildNodes[1].ChildNodes[1].InnerText);
+                z = float.Parse(nodeList.Item(i).ChildNodes[1].ChildNodes[2].InnerText);
+                Vector3 p2 = new Vector3(x, y, z);
+
+                point[i] = (p0 + p1 + p2) / 3;
+            }
+
+            Reset();
+
+            //Add all controlpoints at the positions of the triangles
+            for (int i = 0; i < nodeList.Count; i++) {
+                if (i >= splines[0].points.Count) {
+                    AddControlPoint(0);
+                }
+                SetAnchorPosition(0, i, point[i]);
+            }
+
+            //Calculate a direction for all handles
+            Vector3 handlePosition = (point[1] - point[0]) / 3;
+            SetHandlePosition(0, 0, 1, point[0] + handlePosition);
+            for (int i = 1; i < nodeList.Count - 1; i++) {
+                handlePosition = (point[i + 1] - point[i - 1]) / 6;
+                SetHandlePosition(0, i, 1, point[i] + handlePosition);
+            }
+            handlePosition = (point[nodeList.Count - 1] - point[nodeList.Count - 2]) / 3;
+            SetHandlePosition(0, nodeList.Count - 1, 1, point[nodeList.Count - 1] + handlePosition);
+        }
+        else {
+            Debug.LogWarning("XML list does not contain enough data.");
+        }
+
+
     }
 }

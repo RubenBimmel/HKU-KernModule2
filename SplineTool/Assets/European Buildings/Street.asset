@@ -17,8 +17,8 @@ MonoBehaviour:
     sides: 4
     smoothEdges: 0
     rotation: 45
-    scale: {x: 1, y: 0.025}
-    offset: {x: 0, y: -0.0375}
+    scale: {x: 1, y: 0.05}
+    offset: {x: 0, y: -0.025}
     cap: 1
     material: {fileID: 2100000, guid: 34f2ed786dffe9947b7ae36423f07e99, type: 2}
   - name: LeftPath
@@ -26,8 +26,8 @@ MonoBehaviour:
     sides: 4
     smoothEdges: 0
     rotation: 45
-    scale: {x: 0.3, y: 0.05}
-    offset: {x: 0.9, y: -0.0125}
+    scale: {x: 0.3, y: 0.1}
+    offset: {x: 0.9, y: -0.05}
     cap: 1
     material: {fileID: 2100000, guid: 550d7603b14e9b749b0b3d786dc492e6, type: 2}
   - name: RightPath
@@ -35,28 +35,28 @@ MonoBehaviour:
     sides: 4
     smoothEdges: 0
     rotation: 45
-    scale: {x: 0.3, y: 0.05}
-    offset: {x: -0.9, y: -0.0125}
+    scale: {x: 0.3, y: 0.1}
+    offset: {x: -0.9, y: -0.05}
     cap: 1
     material: {fileID: 2100000, guid: 550d7603b14e9b749b0b3d786dc492e6, type: 2}
   placers:
   - name: LeftBuilding
     objectReference: {fileID: 407188, guid: d8c4bc004abb4fb428be3467211cea9c, type: 2}
     position: {x: 1.8, y: 0}
-    distance: 2
+    distance: 1
     offset: 0.5
     type: 1
     rotation: {x: 0, y: 90, z: 0}
-    scale: {x: 0.5, y: 0.5, z: 0.5}
+    scale: {x: 0.7, y: 0.7, z: 0.7}
     constraints: 000100
   - name: RightBuilding
     objectReference: {fileID: 407188, guid: d8c4bc004abb4fb428be3467211cea9c, type: 2}
     position: {x: -1.8, y: 0}
-    distance: 2
+    distance: 1
     offset: 0.5
     type: 1
     rotation: {x: 0, y: -90, z: 0}
-    scale: {x: 0.5, y: 0.5, z: 0.5}
+    scale: {x: 0.7, y: 0.7, z: 0.7}
     constraints: 000100
   - name: LeftLamp
     objectReference: {fileID: 481480, guid: 82b7428176cbcbf40bd7b2be6787397d, type: 2}

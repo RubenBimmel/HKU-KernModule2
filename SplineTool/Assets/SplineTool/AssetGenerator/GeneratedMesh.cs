@@ -6,17 +6,40 @@ using System;
 [Serializable]
 public class GeneratedMesh {
     public string name;
-    [Range(0.05f, 2f)]
-    public float length = .1f;
-    [Range(3, 12)]
-    public int sides = 3;
-    public bool smoothEdges = false;
-    [Range(0f, 360f)]
-    public float rotation = 0;
-    public Vector2 scale = Vector2.one;
-    public Vector2 offset = Vector2.zero;
-    public bool cap = true;
+    public float length;
+    public int sides;
+    public bool smoothEdges;
+    public float rotation;
+    public Vector2 scale;
+    public Vector2 offset;
+    public bool cap;
     public Material material;
+
+    //Constructor
+    public GeneratedMesh() {
+        name = "Generated Mesh";
+        length = .1f;
+        sides = 3;
+        smoothEdges = false;
+        rotation = 0;
+        scale = Vector2.one;
+        offset = Vector2.zero;
+        cap = true;
+        material = null;
+    }
+
+    //Copy constructor
+    public GeneratedMesh(GeneratedMesh other) {
+        name = other.name + " Clone";
+        length = other.length;
+        sides = other.sides;
+        smoothEdges = other.smoothEdges;
+        rotation = other.rotation;
+        scale = other.scale;
+        offset = other.offset;
+        cap = other.cap;
+        material = other.material;
+    }
 
     public Mesh generate (Spline spline) {
         Mesh mesh = new Mesh();
